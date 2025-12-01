@@ -6,9 +6,9 @@ agent:
     ROLE_ADDITIONAL: ""
   tools:
     - "kimi_cli.tools.multiagent:Task"
-    # - "kimi_cli.tools.multiagent:CreateSubagent"
-    # - "kimi_cli.tools.dmail:SendDMail"
-    # - "kimi_cli.tools.think:Think"
+    # - "kimi_cli.tools.multiagent:CreateSubagent"  # 创建子代理
+    # - "kimi_cli.tools.dmail:SendDMail"  # 发送邮件
+    # - "kimi_cli.tools.think:Think"  # 思考
     - "kimi_cli.tools.todo:SetTodoList"
     - "kimi_cli.tools.shell:Shell"
     - "kimi_cli.tools.file:ReadFile"
@@ -21,4 +21,4 @@ agent:
   subagents:
     coder:
       path: ./sub.yaml
-      description: "Good at general software engineering tasks."
+      description: "擅长一般的软件工程任务。"

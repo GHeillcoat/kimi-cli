@@ -1,11 +1,11 @@
-Create a custom subagent with specific system prompt and name for reuse.
+创建一个具有特定系统提示和名称的自定义子代理，以便重用。
 
-Usage:
-- Define specialized agents with custom roles and boundaries
-- Created agents can be referenced by name in the Task tool
-- Use this when you need a specific agent type not covered by predefined agents
-- The created agent configuration will be saved and can be used immediately
+用法：
+- 定义具有自定义角色和边界的专用代理
+- 创建的代理可以在 Task 工具中按名称引用
+- 当您需要预定义代理未涵盖的特定代理类型时使用此功能
+- 创建的代理配置将被保存并可以立即使用
 
-Example workflow:
-1. Use CreateSubagent to define a specialized agent (e.g., 'code_reviewer')
-2. Use the Task tool with agent='code_reviewer' to launch the created agent
+示例工作流程：
+1. 使用 CreateSubagent 定义一个专用代理（例如，“code_reviewer”）
+2. 使用 Task 工具（agent='code_reviewer'）启动创建的代理

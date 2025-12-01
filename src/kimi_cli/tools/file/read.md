@@ -1,14 +1,14 @@
-Read content from a file.
+从文件中读取内容。
 
-**Tips:**
-- Make sure you follow the description of each tool parameter.
-- A `<system>` tag will be given before the read file content.
-- Content will be returned with a line number before each line like `cat -n` format.
-- Use `line_offset` and `n_lines` parameters when you only need to read a part of the file.
-- The maximum number of lines that can be read at once is ${MAX_LINES}.
-- Any lines longer than ${MAX_LINE_LENGTH} characters will be truncated, ending with "...".
-- The system will notify you when there is any limitation hit when reading the file.
-- This tool is a tool that you typically want to use in parallel. Always read multiple files in one response when possible.
-- This tool can only read text files. To list directories, you must use the Glob tool or `ls` command via the Shell tool. To read other file types, use appropriate commands via the Shell tool.
-- If the file doesn't exist or path is invalid, an error will be returned.
-- If you want to search for a certain content/pattern, prefer Grep tool over ReadFile.
+**提示：**
+- 确保您遵循每个工具参数的描述。
+- 在读取的文件内容之前会给出一个 `<system>` 标签。
+- 内容将以每行前面的行号返回，类似于 `cat -n` 格式。
+- 当您只需要读取文件的一部分时，请使用 `line_offset` 和 `n_lines` 参数。
+- 一次可以读取的最大行数是 ${MAX_LINES}。
+- 任何超过 ${MAX_LINE_LENGTH} 个字符的行将被截断，以 "..." 结尾。
+- 当读取文件时遇到任何限制，系统将通知您。
+- 此工具是您通常希望并行使用的工具。如果可能，请始终在一个响应中读取多个文件。
+- 此工具只能读取文本文件。要列出目录，您必须使用 Glob 工具或通过 Shell 工具使用 `ls` 命令。要读取其他文件类型，请通过 Shell 工具使用适当的命令。
+- 如果文件不存在或路径无效，将返回错误。
+- 如果要搜索某个内容/模式，请优先使用 Grep 工具而不是 ReadFile。

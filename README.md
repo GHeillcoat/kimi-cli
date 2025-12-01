@@ -6,68 +6,68 @@
 [![Downloads](https://img.shields.io/pypi/dw/kimi-cli)](https://pypistats.org/packages/kimi-cli)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/MoonshotAI/kimi-cli)
 
-[中文](https://www.kimi.com/coding/docs/kimi-cli.html)
 
-Kimi CLI is a new CLI agent that can help you with your software development tasks and terminal operations.
+
+Kimi CLI 是一款全新的命令行智能体，可以帮助您完成软件开发任务和终端操作。
 
 > [!IMPORTANT]
-> Kimi CLI is currently in technical preview.
+> Kimi CLI 目前处于技术预览阶段。
 
-## Key features
+## 主要特性
 
-- Shell-like UI and shell command execution
-- Zsh integration
-- [Agent Client Protocol] support
-- MCP support
-- And more to come...
+- Shell 风格的界面和 Shell 命令执行
+- Zsh 集成
+- 支持 [Agent Client Protocol]
+- 支持 MCP
+- 以及更多即将推出的功能...
 
 [Agent Client Protocol]: https://github.com/agentclientprotocol/agent-client-protocol
 
-## Installation
+## 安装
 
-Kimi CLI is published as a Python package on PyPI. We highly recommend installing it with [uv](https://docs.astral.sh/uv/). If you have not installed uv yet, please follow the instructions [here](https://docs.astral.sh/uv/getting-started/installation/) to install it first.
+Kimi CLI 作为一个 Python 包发布在 PyPI 上。我们强烈建议使用 [uv](https://docs.astral.sh/uv/) 来安装它。如果您还没有安装 uv，请先按照[此处的说明](https://docs.astral.sh/uv/getting-started/installation/)进行安装。
 
-Once uv is installed, you can install Kimi CLI with:
+安装 uv 后，您可以通过以下命令安装 Kimi CLI：
 
 ```sh
 uv tool install --python 3.13 kimi-cli
 ```
 
-Run `kimi --help` to check if Kimi CLI is installed successfully.
+运行 `kimi --help` 来检查 Kimi CLI 是否安装成功。
 
 > [!IMPORTANT]
-> Due to the security checks on macOS, the first time you run `kimi` command may take 10 seconds or more depending on your system environment.
+> 由于 macOS 的安全检查，首次运行 `kimi` 命令可能需要 10 秒或更长时间，具体取决于您的系统环境。
 
-## Upgrading
+## 升级
 
-Upgrade Kimi CLI to the latest version with:
+使用以下命令将 Kimi CLI 升级到最新版本：
 
 ```sh
 uv tool upgrade kimi-cli --no-cache
 ```
 
-## Usage
+## 使用方法
 
-Run `kimi` command in the directory you want to work on, then send `/setup` to setup Kimi CLI:
+在您想要工作的目录中运行 `kimi` 命令，然后发送 `/setup` 来设置 Kimi CLI：
 
 ![](./docs/images/setup.png)
 
-After setup, Kimi CLI will be ready to use. You can send `/help` to get more information.
+设置完成后，Kimi CLI 即可使用。您可以发送 `/help` 获取更多信息。
 
-## Features
+## 功能
 
-### Shell mode
+### Shell 模式
 
-Kimi CLI is not only a coding agent, but also a shell. You can switch the mode by pressing `Ctrl-X`. In shell mode, you can directly run shell commands without leaving Kimi CLI.
+Kimi CLI 不仅是一个编程智能体，还是一个 shell。您可以通过按 `Ctrl-X` 来切换模式。在 shell 模式下，您可以直接运行 shell 命令而无需离开 Kimi CLI。
 
 > [!NOTE]
-> Built-in shell commands like `cd` are not supported yet.
+> 目前尚不支持像 `cd` 这样的内置 shell 命令。
 
-### Zsh integration
+### Zsh 集成
 
-You can use Kimi CLI together with Zsh, to empower your shell experience with AI agent capabilities.
+您可以将 Kimi CLI 与 Zsh 结合使用，为您的 shell 体验赋予 AI 智能体的能力。
 
-Install the [zsh-kimi-cli](https://github.com/MoonshotAI/zsh-kimi-cli) plugin via:
+通过以下方式安装 [zsh-kimi-cli](https://github.com/MoonshotAI/zsh-kimi-cli) 插件：
 
 ```sh
 git clone https://github.com/MoonshotAI/zsh-kimi-cli.git \
@@ -75,21 +75,21 @@ git clone https://github.com/MoonshotAI/zsh-kimi-cli.git \
 ```
 
 > [!NOTE]
-> If you are using a plugin manager other than Oh My Zsh, you may need to refer to the plugin's README for installation instructions.
+> 如果您使用的插件管理器不是 Oh My Zsh，您可能需要参考该插件的 README 来获取安装说明。
 
-Then add `kimi-cli` to your Zsh plugin list in `~/.zshrc`:
+然后在您的 `~/.zshrc` 文件中将 `kimi-cli` 添加到您的 Zsh 插件列表：
 
 ```sh
 plugins=(... kimi-cli)
 ```
 
-After restarting Zsh, you can switch to agent mode by pressing `Ctrl-X`.
+重启 Zsh 后，您可以通过按 `Ctrl-X` 切换到智能体模式。
 
-### ACP support
+### ACP 支持
 
-Kimi CLI supports [Agent Client Protocol] out of the box. You can use it together with any ACP-compatible editor or IDE.
+Kimi CLI 开箱即用地支持 [Agent Client Protocol]。您可以将其与任何兼容 ACP 的编辑器或 IDE 结合使用。
 
-For example, to use Kimi CLI with [Zed](https://zed.dev/), add the following configuration to your `~/.config/zed/settings.json`:
+例如，要将 Kimi CLI 与 [Zed](https://zed.dev/) 一起使用，请将以下配置添加到您的 `~/.config/zed/settings.json` 文件中：
 
 ```json
 {
@@ -103,11 +103,11 @@ For example, to use Kimi CLI with [Zed](https://zed.dev/), add the following con
 }
 ```
 
-Then you can create Kimi CLI threads in Zed's agent panel.
+然后您就可以在 Zed 的智能体面板中创建 Kimi CLI 线程。
 
-### Using MCP tools
+### 使用 MCP 工具
 
-Kimi CLI supports the well-established MCP config convention. For example:
+Kimi CLI 支持成熟的 MCP 配置约定。例如：
 
 ```json
 {
@@ -126,36 +126,36 @@ Kimi CLI supports the well-established MCP config convention. For example:
 }
 ```
 
-Run `kimi` with `--mcp-config-file` option to connect to the specified MCP servers:
+使用 `--mcp-config-file` 选项运行 `kimi` 以连接到指定的 MCP 服务器：
 
 ```sh
 kimi --mcp-config-file /path/to/mcp.json
 ```
 
-## Development
+## 开发
 
-To develop Kimi CLI, run:
+要开发 Kimi CLI，请运行：
 
 ```sh
 git clone https://github.com/MoonshotAI/kimi-cli.git
 cd kimi-cli
 
-make prepare  # prepare the development environment
+make prepare  # 准备开发环境
 ```
 
-Then you can start working on Kimi CLI.
+然后您就可以开始开发 Kimi CLI 了。
 
-Refer to the following commands after you make changes:
+在进行更改后，请参考以下命令：
 
 ```sh
-uv run kimi  # run Kimi CLI
+uv run kimi  # 运行 Kimi CLI
 
-make format  # format code
-make check  # run linting and type checking
-make test  # run tests
-make help  # show all make targets
+make format  # 格式化代码
+make check  # 运行 linting 和类型检查
+make test  # 运行测试
+make help  # 显示所有 make 目标
 ```
 
-## Contributing
+## 贡献
 
-We welcome contributions to Kimi CLI! Please refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.
+我们欢迎对 Kimi CLI 的贡献！更多信息请参考 [CONTRIBUTING.md](./CONTRIBUTING.md)。

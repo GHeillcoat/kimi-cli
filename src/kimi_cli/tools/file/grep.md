@@ -1,5 +1,5 @@
-A powerful search tool based-on ripgrep.
+一个基于 ripgrep 的强大搜索工具。
 
-**Tips:**
-- ALWAYS use Grep tool instead of running `grep` or `rg` command with Shell tool.
-- Use the ripgrep pattern syntax, not grep syntax. E.g. you need to escape braces like `\\{` to search for `{`.
+**提示：**
+- 始终使用 Grep 工具，而不是使用 Shell 工具运行 `grep` 或 `rg` 命令。
+- 使用 ripgrep 模式语法，而不是 grep 语法。例如，你需要转义大括号，如 `\\{` 来搜索 `{`。

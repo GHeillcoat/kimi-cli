@@ -1,30 +1,30 @@
-Execute a shell command. Use this tool to explore the filesystem, edit files, run scripts, get system information, etc.
+执行 shell 命令。使用此工具可以探索文件系统、编辑文件、运行脚本、获取系统信息等。
 
-**Output:**
-The stdout and stderr will be combined and returned as a string. The output may be truncated if it is too long. If the command failed, the exit code will be provided in a system tag.
+**输出：**
+标准输出和标准错误将合并并作为字符串返回。如果输出过长，可能会被截断。如果命令失败，退出码将以系统标签的形式提供。
 
-**Guidelines for safety and security:**
-- Each shell tool call will be executed in a fresh shell environment. The shell variables, current working directory changes, and the shell history is not preserved between calls.
-- The tool call will return after the command is finished. You shall not use this tool to execute an interactive command or a command that may run forever. For possibly long-running commands, you shall set `timeout` argument to a reasonable value.
-- Avoid using `..` to access files or directories outside of the working directory.
-- Avoid modifying files outside of the working directory unless explicitly instructed to do so.
-- Never run commands that require superuser privileges unless explicitly instructed to do so.
+**安全指南：**
+- 每次 shell 工具调用都将在全新的 shell 环境中执行。shell 变量、当前工作目录更改和 shell 历史记录在调用之间不会保留。
+- 工具调用将在命令完成后返回。您不得使用此工具执行交互式命令或可能永远运行的命令。对于可能长时间运行的命令，您应将 `timeout` 参数设置为合理的值。
+- 避免使用 `..` 访问工作目录之外的文件或目录。
+- 除非明确指示，否则避免修改工作目录之外的文件。
+- 除非明确指示，否则绝不要运行需要超级用户权限的命令。
 
-**Guidelines for efficiency:**
-- For multiple related commands, use `&&` to chain them in a single call, e.g. `cd /path && ls -la`
-- Use `;` to run commands sequentially regardless of success/failure
-- Use `||` for conditional execution (run second command only if first fails)
-- Use pipe operations (`|`) and redirections (`>`, `>>`) to chain input and output between commands
-- Always quote file paths containing spaces with double quotes (e.g., cd "/path with spaces/")
-- Use `if`, `case`, `for`, `while` control flows to execute complex logic in a single call.
-- Verify directory structure before create/edit/delete files or directories to reduce the risk of failure.
+**效率指南：**
+- 对于多个相关命令，使用 `&&` 将它们链接在一个调用中，例如 `cd /path && ls -la`
+- 使用 `;` 按顺序运行命令，无论成功或失败
+- 使用 `||` 进行条件执行（仅当第一个命令失败时才运行第二个命令）
+- 使用管道操作 (`|`) 和重定向 (`>`, `>>`) 在命令之间链接输入和输出
+- 始终用双引号引用包含空格的文件路径（例如，cd "/path with spaces/"）
+- 使用 `if`、`case`、`for`、`while` 控制流在一个调用中执行复杂逻辑。
+- 在创建/编辑/删除文件或目录之前验证目录结构，以减少失败的风险。
 
-**Commands available:**
-- Shell environment: cd, pwd, export, unset, env
-- File system operations: ls, find, mkdir, rm, cp, mv, touch, chmod, chown
-- File viewing/editing: cat, grep, head, tail, diff, patch
-- Text processing: awk, sed, sort, uniq, wc
-- System information/operations: ps, kill, top, df, free, uname, whoami, id, date
-- Network operations: curl, wget, ping, telnet, ssh
-- Archive operations: tar, zip, unzip
-- Other: Other commands available in the shell environment. Check the existence of a command by running `which <command>` before using it.
+**可用命令：**
+- Shell 环境：cd, pwd, export, unset, env
+- 文件系统操作：ls, find, mkdir, rm, cp, mv, touch, chmod, chown
+- 文件查看/编辑：cat, grep, head, tail, diff, patch
+- 文本处理：awk, sed, sort, uniq, wc
+- 系统信息/操作：ps, kill, top, df, free, uname, whoami, id, date
+- 网络操作：curl, wget, ping, telnet, ssh
+- 归档操作：tar, zip, unzip
+- 其他：shell 环境中可用的其他命令。在使用之前通过运行 `which <command>` 检查命令是否存在。

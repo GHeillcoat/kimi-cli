@@ -33,7 +33,7 @@ def enable_logging(debug: bool = False) -> None:
         logger.enable("kosong")
     logger.add(
         get_share_dir() / "logs" / "kimi.log",
-        # FIXME: configure level for different modules
+        # FIXME: 为不同模块配置级别
         level="TRACE" if debug else "INFO",
         rotation="06:00",
         retention="10 days",
@@ -53,41 +53,41 @@ class KimiCLI:
         agent_file: Path | None = None,
     ) -> KimiCLI:
         """
-        Create a KimiCLI instance.
+        创建一个 KimiCLI 实例。
 
         Args:
-            session (Session): A session created by `Session.create` or `Session.continue_`.
-            yolo (bool, optional): Approve all actions without confirmation. Defaults to False.
-            config_file (Path | None, optional): Path to the configuration file. Defaults to None.
-            model_name (str | None, optional): Name of the model to use. Defaults to None.
-            agent_file (Path | None, optional): Path to the agent file. Defaults to None.
+            session (Session): 由 `Session.create` 或 `Session.continue_` 创建的会话。
+            yolo (bool, optional): 无需确认即可批准所有操作。默认为 False。
+            config_file (Path | None, optional): 配置文件的路径。默认为 None。
+            model_name (str | None, optional): 要使用的模型的名称。默认为 None。
+            agent_file (Path | None, optional): 智能体文件的路径。默认为 None。
 
         Raises:
-            FileNotFoundError: When the agent file is not found.
-            ConfigError(KimiCLIException): When the configuration is invalid.
-            AgentSpecError(KimiCLIException): When the agent specification is invalid.
+            FileNotFoundError: 当找不到智能体文件时。
+            ConfigError(KimiCLIException): 当配置无效时。
+            AgentSpecError(KimiCLIException): 当智能体规约无效时。
         """
         config = load_config(config_file)
-        logger.info("Loaded config: {config}", config=config)
+        logger.info("已加载配置: {config}", config=config)
 
         model: LLMModel | None = None
         provider: LLMProvider | None = None
 
-        # try to use config file
+        # 尝试使用配置文件
         if not model_name and config.default_model:
-            # no --model specified && default model is set in config
+            # 未指定 --model && 在配置中设置了默认模型
             model = config.models[config.default_model]
             provider = config.providers[model.provider]
         if model_name and model_name in config.models:
-            # --model specified && model is set in config
+            # 指定了 --model && 在配置中设置了模型
             model = config.models[model_name]
             provider = config.providers[model.provider]
 
-        if not model:
+        if not model or not provider:
             model = LLMModel(provider="", model="", max_context_size=100_000)
             provider = LLMProvider(type="kimi", base_url="", api_key=SecretStr(""))
 
-        # try overwrite with environment variables
+        # 尝试用环境变量覆盖
         assert provider is not None
         assert model is not None
         env_overrides = augment_provider_with_env_vars(provider, model)
@@ -95,8 +95,8 @@ class KimiCLI:
         if not provider.base_url or not model.model:
             llm = None
         else:
-            logger.info("Using LLM provider: {provider}", provider=provider)
-            logger.info("Using LLM model: {model}", model=model)
+            logger.info("正在使用 LLM 提供商: {provider}", provider=provider)
+            logger.info("正在使用 LLM 模型: {model}", model=model)
             llm = create_llm(provider, model, session_id=session.id)
 
         runtime = await Runtime.create(config, llm, session, yolo)
@@ -112,7 +112,7 @@ class KimiCLI:
         try:
             soul.set_thinking(thinking)
         except (LLMNotSet, LLMNotSupported) as e:
-            logger.warning("Failed to enable thinking mode: {error}", error=e)
+            logger.warning("启用思考模式失败: {error}", error=e)
         return KimiCLI(soul, runtime, env_overrides)
 
     def __init__(
@@ -127,12 +127,12 @@ class KimiCLI:
 
     @property
     def soul(self) -> KimiSoul:
-        """Get the KimiSoul instance."""
+        """获取 KimiSoul 实例。"""
         return self._soul
 
     @property
     def session(self) -> Session:
-        """Get the Session instance."""
+        """获取 Session 实例。"""
         return self._runtime.session
 
     @contextlib.asynccontextmanager
@@ -140,7 +140,7 @@ class KimiCLI:
         original_cwd = KaosPath.cwd()
         await kaos.chdir(self._runtime.session.work_dir)
         try:
-            # to ignore possible warnings from dateparser
+            # 忽略 dateparser 可能产生的警告
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             with contextlib.redirect_stderr(StreamToLogger()):
                 yield
@@ -154,22 +154,22 @@ class KimiCLI:
         merge_wire_messages: bool = False,
     ) -> AsyncGenerator[WireMessage]:
         """
-        Run the Kimi CLI instance without any UI and yield Wire messages directly.
+        在没有任何UI的情况下运行Kimi CLI实例，并直接产生Wire消息。
 
         Args:
-            user_input (str | list[ContentPart]): The user input to the agent.
-            cancel_event (asyncio.Event): An event to cancel the run.
-            merge_wire_messages (bool): Whether to merge Wire messages as much as possible.
+            user_input (str | list[ContentPart]): 对智能体的用户输入。
+            cancel_event (asyncio.Event): 用于取消运行的事件。
+            merge_wire_messages (bool): 是否尽可能合并Wire消息。
 
         Yields:
-            WireMessage: The Wire messages from the `KimiSoul`.
+            WireMessage: 来自 `KimiSoul` 的Wire消息。
 
         Raises:
-            LLMNotSet: When the LLM is not set.
-            LLMNotSupported: When the LLM does not have required capabilities.
-            ChatProviderError: When the LLM provider returns an error.
-            MaxStepsReached: When the maximum number of steps is reached.
-            RunCancelled: When the run is cancelled by the cancel event.
+            LLMNotSet: 当未设置LLM时。
+            LLMNotSupported: 当LLM不具备所需功能时。
+            ChatProviderError: 当LLM提供商返回错误时。
+            MaxStepsReached: 当达到最大步数时。
+            RunCancelled: 当运行被取消事件取消时。
         """
         async with self._env():
             wire_future = asyncio.Future[WireUISide]()
@@ -191,57 +191,57 @@ class KimiCLI:
             except asyncio.QueueShutDown:
                 pass
             finally:
-                # stop consuming Wire messages
+                # 停止消费 Wire 消息
                 stop_ui_loop.set()
-                # wait for the soul task to finish, or raise
+                # 等待 soul 任务完成，或抛出异常
                 await soul_task
 
     async def run_shell(self, command: str | None = None) -> bool:
-        """Run the Kimi CLI instance with shell UI."""
+        """使用 shell UI 运行 Kimi CLI 实例。"""
         from kimi_cli.ui.shell import Shell, WelcomeInfoItem
 
         welcome_info = [
             WelcomeInfoItem(
-                name="Directory", value=str(shorten_home(self._runtime.session.work_dir))
+                name="目录", value=str(shorten_home(self._runtime.session.work_dir))
             ),
-            WelcomeInfoItem(name="Session", value=self._runtime.session.id),
+            WelcomeInfoItem(name="会话", value=self._runtime.session.id),
         ]
         if base_url := self._env_overrides.get("KIMI_BASE_URL"):
             welcome_info.append(
                 WelcomeInfoItem(
-                    name="API URL",
-                    value=f"{base_url} (from KIMI_BASE_URL)",
+                    name="API 地址",
+                    value=f"{base_url} (来自 KIMI_BASE_URL)",
                     level=WelcomeInfoItem.Level.WARN,
                 )
             )
         if self._env_overrides.get("KIMI_API_KEY"):
             welcome_info.append(
                 WelcomeInfoItem(
-                    name="API Key",
-                    value="****** (from KIMI_API_KEY)",
+                    name="API 密钥",
+                    value="****** (来自 KIMI_API_KEY)",
                     level=WelcomeInfoItem.Level.WARN,
                 )
             )
         if not self._runtime.llm:
             welcome_info.append(
                 WelcomeInfoItem(
-                    name="Model",
-                    value="not set, send /setup to configure",
+                    name="模型",
+                    value="未设置, 请使用 /setup 命令进行配置",
                     level=WelcomeInfoItem.Level.WARN,
                 )
             )
         elif "KIMI_MODEL_NAME" in self._env_overrides:
             welcome_info.append(
                 WelcomeInfoItem(
-                    name="Model",
-                    value=f"{self._soul.model_name} (from KIMI_MODEL_NAME)",
+                    name="模型",
+                    value=f"{self._soul.model_name} (来自 KIMI_MODEL_NAME)",
                     level=WelcomeInfoItem.Level.WARN,
                 )
             )
         else:
             welcome_info.append(
                 WelcomeInfoItem(
-                    name="Model",
+                    name="模型",
                     value=self._soul.model_name,
                     level=WelcomeInfoItem.Level.INFO,
                 )
@@ -256,7 +256,7 @@ class KimiCLI:
         output_format: OutputFormat,
         command: str | None = None,
     ) -> bool:
-        """Run the Kimi CLI instance with print UI."""
+        """使用 print UI 运行 Kimi CLI 实例。"""
         from kimi_cli.ui.print import Print
 
         async with self._env():
@@ -269,7 +269,7 @@ class KimiCLI:
             return await print_.run(command)
 
     async def run_acp(self) -> None:
-        """Run the Kimi CLI instance as ACP server."""
+        """作为 ACP 服务器运行 Kimi CLI 实例。"""
         from kimi_cli.ui.acp import ACP
 
         async with self._env():
@@ -277,7 +277,7 @@ class KimiCLI:
             await acp.run()
 
     async def run_wire_stdio(self) -> None:
-        """Run the Kimi CLI instance as Wire server over stdio."""
+        """通过 stdio 作为 Wire 服务器运行 Kimi CLI 实例。"""
         from kimi_cli.ui.wire import WireOverStdio
 
         async with self._env():

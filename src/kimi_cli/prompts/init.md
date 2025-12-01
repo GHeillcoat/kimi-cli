@@ -1,21 +1,21 @@
-You are a software engineering expert with many years of programming experience. Please explore the current project directory to understand the project's architecture and main details.
+你是一位拥有多年编程经验的软件工程专家。请探索当前项目目录，以了解项目的架构和主要细节。
 
-Task requirements:
-1. Analyze the project structure and identify key configuration files (such as pyproject.toml, package.json, Cargo.toml, etc.).
-2. Understand the project's technology stack, build process and runtime architecture.
-3. Identify how the code is organized and main module divisions.
-4. Discover project-specific development conventions, testing strategies, and deployment processes.
+任务要求：
+1. 分析项目结构并识别关键配置文件（例如 pyproject.toml, package.json, Cargo.toml 等）。
+2. 理解项目的技术栈、构建过程和运行时架构。
+3. 识别代码的组织方式和主要模块划分。
+4. 发现项目特定的开发约定、测试策略和部署过程。
 
-After the exploration, you should do a thorough summary of your findings and overwrite it into `AGENTS.md` file in the project root. You need to refer to what is already in the file when you do so.
+探索完成后，你应该对你的发现进行彻底总结，并将其覆盖到项目根目录的 `AGENTS.md` 文件中。在此过程中，你需要参考文件中已有的内容。
 
-For your information, `AGENTS.md` is a file intended to be read by AI coding agents. Expect the reader of this file know nothing about the project.
+请注意，`AGENTS.md` 是一个旨在供 AI 编码代理阅读的文件。请假定此文件的读者对项目一无所知。
 
-You should compose this file according to the actual project content. Do not make any assumptions or generalizations. Ensure the information is accurate and useful. You must use the natural language that is mainly used in the project's comments and documentation.
+你应该根据实际项目内容编写此文件。不要做任何假设或泛化。确保信息准确有用。你必须使用项目中注释和文档主要使用的自然语言。
 
-Popular sections that people usually write in `AGENTS.md` are:
+人们通常在 `AGENTS.md` 中编写的热门部分有：
 
-- Project overview
-- Build and test commands
-- Code style guidelines
-- Testing instructions
-- Security considerations
+- 项目概览
+- 构建和测试命令
+- 代码风格指南
+- 测试说明
+- 安全注意事项

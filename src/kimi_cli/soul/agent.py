@@ -27,16 +27,16 @@ from kimi_cli.utils.path import list_directory
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class BuiltinSystemPromptArgs:
-    """Builtin system prompt arguments."""
+    """内置系统提示参数。"""
 
     KIMI_NOW: str
-    """The current datetime."""
+    """当前日期时间。"""
     KIMI_WORK_DIR: KaosPath
-    """The absolute path of current working directory."""
+    """当前工作目录的绝对路径。"""
     KIMI_WORK_DIR_LS: str
-    """The directory listing of current working directory."""
+    """当前工作目录的目录列表。"""
     KIMI_AGENTS_MD: str  # TODO: move to first message from system prompt
-    """The content of AGENTS.md."""
+    """AGENTS.md 的内容。"""
 
 
 async def load_agents_md(work_dir: KaosPath) -> str | None:
@@ -46,15 +46,15 @@ async def load_agents_md(work_dir: KaosPath) -> str | None:
     ]
     for path in paths:
         if await path.is_file():
-            logger.info("Loaded agents.md: {path}", path=path)
+            logger.info("已加载 agents.md: {path}", path=path)
             return (await path.read_text()).strip()
-    logger.info("No AGENTS.md found in {work_dir}", work_dir=work_dir)
+    logger.info("在 {work_dir} 中未找到 AGENTS.md", work_dir=work_dir)
     return None
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Runtime:
-    """Agent runtime."""
+    """代理运行时。"""
 
     config: Config
     llm: LLM | None
@@ -92,39 +92,39 @@ class Runtime:
         )
 
     def copy_for_fixed_subagent(self) -> Runtime:
-        """Clone runtime for fixed subagent."""
+        """为固定子代理克隆运行时。"""
         return Runtime(
             config=self.config,
             llm=self.llm,
             session=self.session,
             builtin_args=self.builtin_args,
-            denwa_renji=DenwaRenji(),  # subagent must have its own DenwaRenji
+            denwa_renji=DenwaRenji(),  # 子代理必须有自己的 DenwaRenji
             approval=self.approval,
-            labor_market=LaborMarket(),  # fixed subagent has its own LaborMarket
+            labor_market=LaborMarket(),  # 固定子代理有自己的 LaborMarket
         )
 
     def copy_for_dynamic_subagent(self) -> Runtime:
-        """Clone runtime for dynamic subagent."""
+        """为动态子代理克隆运行时。"""
         return Runtime(
             config=self.config,
             llm=self.llm,
             session=self.session,
             builtin_args=self.builtin_args,
-            denwa_renji=DenwaRenji(),  # subagent must have its own DenwaRenji
+            denwa_renji=DenwaRenji(),  # 子代理必须有自己的 DenwaRenji
             approval=self.approval,
-            labor_market=self.labor_market,  # dynamic subagent shares LaborMarket with main agent
+            labor_market=self.labor_market,  # 动态子代理与主代理共享 LaborMarket
         )
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Agent:
-    """The loaded agent."""
+    """已加载的代理。"""
 
     name: str
     system_prompt: str
     toolset: Toolset
     runtime: Runtime
-    """Each agent has its own runtime, which should be derived from its main agent."""
+    """每个代理都有自己的运行时，应从其主代理派生。"""
 
 
 class LaborMarket:
@@ -135,16 +135,16 @@ class LaborMarket:
 
     @property
     def subagents(self) -> Mapping[str, Agent]:
-        """Get all subagents in the labor market."""
+        """获取劳务市场中的所有子代理。"""
         return {**self.fixed_subagents, **self.dynamic_subagents}
 
     def add_fixed_subagent(self, name: str, agent: Agent, description: str):
-        """Add a fixed subagent."""
+        """添加一个固定子代理。"""
         self.fixed_subagents[name] = agent
         self.fixed_subagent_descs[name] = description
 
     def add_dynamic_subagent(self, name: str, agent: Agent):
-        """Add a dynamic subagent."""
+        """添加一个动态子代理。"""
         self.dynamic_subagents[name] = agent
 
 
@@ -155,13 +155,13 @@ async def load_agent(
     mcp_configs: list[dict[str, Any]],
 ) -> Agent:
     """
-    Load agent from specification file.
+    从规范文件加载代理。
 
     Raises:
-        FileNotFoundError: If the agent spec file does not exist.
-        AgentSpecError: If the agent spec is not valid.
+        FileNotFoundError: 如果代理规范文件不存在。
+        AgentSpecError: 如果代理规范无效。
     """
-    logger.info("Loading agent: {agent_file}", agent_file=agent_file)
+    logger.info("正在加载代理: {agent_file}", agent_file=agent_file)
     agent_spec = load_agent_spec(agent_file)
 
     system_prompt = _load_system_prompt(
@@ -172,7 +172,7 @@ async def load_agent(
 
     # load subagents before loading tools because Task tool depends on LaborMarket on initialization
     for subagent_name, subagent_spec in agent_spec.subagents.items():
-        logger.debug("Loading subagent: {subagent_name}", subagent_name=subagent_name)
+        logger.debug("正在加载子代理: {subagent_name}", subagent_name=subagent_name)
         subagent = await load_agent(
             subagent_spec.path,
             runtime.copy_for_fixed_subagent(),
@@ -193,11 +193,11 @@ async def load_agent(
     }
     tools = agent_spec.tools
     if agent_spec.exclude_tools:
-        logger.debug("Excluding tools: {tools}", tools=agent_spec.exclude_tools)
+        logger.debug("正在排除工具: {tools}", tools=agent_spec.exclude_tools)
         tools = [tool for tool in tools if tool not in agent_spec.exclude_tools]
     bad_tools = _load_tools(toolset, tools, tool_deps)
     if bad_tools:
-        raise ValueError(f"Invalid tools: {bad_tools}")
+        raise ValueError(f"无效的工具: {bad_tools}")
 
     if mcp_configs:
         await _load_mcp_tools(toolset, mcp_configs, runtime)
@@ -213,10 +213,10 @@ async def load_agent(
 def _load_system_prompt(
     path: Path, args: dict[str, str], builtin_args: BuiltinSystemPromptArgs
 ) -> str:
-    logger.info("Loading system prompt: {path}", path=path)
+    logger.info("正在加载系统提示: {path}", path=path)
     system_prompt = path.read_text(encoding="utf-8").strip()
     logger.debug(
-        "Substituting system prompt with builtin args: {builtin_args}, spec args: {spec_args}",
+        "正在用内置参数替换系统提示: {builtin_args}, 规范参数: {spec_args}",
         builtin_args=builtin_args,
         spec_args=args,
     )
@@ -234,20 +234,20 @@ def _load_tools(
         try:
             tool = _load_tool(tool_path, dependencies)
         except SkipThisTool:
-            logger.info("Skipping tool: {tool_path}", tool_path=tool_path)
+            logger.info("跳过工具: {tool_path}", tool_path=tool_path)
             continue
         if tool:
             toolset.add(tool)
         else:
             bad_tools.append(tool_path)
-    logger.info("Loaded tools: {tools}", tools=[tool.name for tool in toolset.tools])
+    logger.info("已加载工具: {tools}", tools=[tool.name for tool in toolset.tools])
     if bad_tools:
-        logger.error("Bad tools: {bad_tools}", bad_tools=bad_tools)
+        logger.error("不良工具: {bad_tools}", bad_tools=bad_tools)
     return bad_tools
 
 
 def _load_tool(tool_path: str, dependencies: dict[type[Any], Any]) -> ToolType | None:
-    logger.debug("Loading tool: {tool_path}", tool_path=tool_path)
+    logger.debug("正在加载工具: {tool_path}", tool_path=tool_path)
     module_name, class_name = tool_path.rsplit(":", 1)
     try:
         module = importlib.import_module(module_name)
@@ -265,7 +265,7 @@ def _load_tool(tool_path: str, dependencies: dict[type[Any], Any]) -> ToolType |
                 break
             # all positional parameters should be dependencies to be injected
             if param.annotation not in dependencies:
-                raise ValueError(f"Tool dependency not found: {param.annotation}")
+                raise ValueError(f"未找到工具依赖项: {param.annotation}")
             args.append(dependencies[param.annotation])
     return cls(*args)
 
@@ -277,15 +277,15 @@ async def _load_mcp_tools(
 ):
     """
     Raises:
-        ValueError: If the MCP config is not valid.
-        RuntimeError: If the MCP server cannot be connected.
+        ValueError: 如果 MCP 配置无效。
+        RuntimeError: 如果无法连接 MCP 服务器。
     """
     import fastmcp
 
     from kimi_cli.tools.mcp import MCPTool
 
     for mcp_config in mcp_configs:
-        logger.info("Loading MCP tools from: {mcp_config}", mcp_config=mcp_config)
+        logger.info("正在从以下位置加载 MCP 工具: {mcp_config}", mcp_config=mcp_config)
         client = fastmcp.Client(mcp_config)
         async with client:
             for tool in await client.list_tools():

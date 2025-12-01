@@ -28,19 +28,23 @@ ALL_MODEL_CAPABILITIES: set[ModelCapability] = set(get_args(ModelCapability.__va
 @dataclass(slots=True)
 class LLM:
     chat_provider: ChatProvider
+    """聊天提供商实例。"""
     max_context_size: int
+    """模型最大上下文大小。"""
     capabilities: set[ModelCapability]
+    """模型能力集。"""
 
     @property
     def model_name(self) -> str:
-        return self.chat_provider.model_name
+        """返回模型名称。"""
 
 
 def augment_provider_with_env_vars(provider: LLMProvider, model: LLMModel) -> dict[str, str]:
-    """Override provider/model settings from environment variables.
+    """
+    从环境变量中覆盖提供商/模型设置。
 
     Returns:
-        Mapping of environment variables that were applied.
+        已应用的环境变量的映射。
     """
     applied: dict[str, str] = {}
 

@@ -1,74 +1,74 @@
-You are tasked with compacting a coding conversation context. This is critical for maintaining an effective working memory for the coding agent.
+你的任务是压缩一个编码对话上下文。这对于保持编码智能体的有效工作记忆至关重要。
 
-**Compression Priorities (in order):**
-1. **Current Task State**: What is being worked on RIGHT NOW
-2. **Errors & Solutions**: All encountered errors and their resolutions
-3. **Code Evolution**: Final working versions only (remove intermediate attempts)
-4. **System Context**: Project structure, dependencies, environment setup
-5. **Design Decisions**: Architectural choices and their rationale
-6. **TODO Items**: Unfinished tasks and known issues
+**压缩优先级（按顺序）：**
+1. **当前任务状态**：当前正在进行的工作
+2. **错误与解决方案**：所有遇到的错误及其解决方案
+3. **代码演进**：仅保留最终工作版本（删除中间尝试）
+4. **系统上下文**：项目结构、依赖项、环境设置
+5. **设计决策**：架构选择及其原理
+6. **待办事项**：未完成的任务和已知问题
 
-**Compression Rules:**
-- MUST KEEP: Error messages, stack traces, working solutions, current task
-- MERGE: Similar discussions into single summary points
-- REMOVE: Redundant explanations, failed attempts (keep lessons learned), verbose comments
-- CONDENSE: Long code blocks → keep signatures + key logic only
+**压缩规则：**
+- 必须保留：错误消息、堆栈跟踪、有效解决方案、当前任务
+- 合并：将相似的讨论合并为单个摘要点
+- 移除：冗余解释、失败尝试（保留吸取的教训）、冗长注释
+- 浓缩：长代码块 → 仅保留签名 + 关键逻辑
 
-**Special Handling:**
-- For code: Keep full version if < 20 lines, otherwise keep signature + key logic
-- For errors: Keep full error message + final solution
-- For discussions: Extract decisions and action items only
+**特殊处理：**
+- 对于代码：如果少于 20 行，保留完整版本；否则，保留签名 + 关键逻辑
+- 对于错误：保留完整的错误消息 + 最终解决方案
+- 对于讨论：仅提取决策和行动项
 
-**Input Context to Compress:**
+**要压缩的输入上下文：**
 
 ${CONTEXT}
 
-**Required Output Structure:**
+**所需的输出结构：**
 
 <current_focus>
-[What we're working on now]
+[我们现在正在处理什么]
 </current_focus>
 
 <environment>
-- [Key setup/config points]
-- ...more...
+- [关键设置/配置点]
+- ...更多...
 </environment>
 
 <completed_tasks>
-- [Task]: [Brief outcome]
-- ...more...
+- [任务]：[简要结果]
+- ...更多...
 </completed_tasks>
 
 <active_issues>
-- [Issue]: [Status/Next steps]
-- ...more...
+- [问题]：[状态/下一步]
+- ...更多...
 </active_issues>
 
 <code_state>
 
 <file>
-[filename]
+[文件名]
 
-**Summary:**
-[What this code file does]
+**摘要：**
+[此代码文件的作用]
 
-**Key elements:**
-- [Important functions/classes]
-- ...more...
+**关键元素：**
+- [重要函数/类]
+- ...更多...
 
-**Latest version:**
-[Critical code snippets in this file]
+**最新版本：**
+[此文件中的关键代码片段]
 </file>
 
 <file>
-[filename]
-...Similar as above...
+[文件名]
+...与上面类似...
 </file>
 
-...more files...
+...更多文件...
 </code_state>
 
 <important_context>
-- [Any crucial information not covered above]
-- ...more...
+- [未涵盖的任何关键信息]
+- ...更多...
 </important_context>

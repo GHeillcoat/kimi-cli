@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import shlex
 from collections.abc import Awaitable, Coroutine
 from dataclasses import dataclass
@@ -9,7 +10,9 @@ from typing import Any
 
 from kosong.chat_provider import APIStatusError, ChatProviderError
 from kosong.message import ContentPart
+from rich import box
 from rich.console import Group, RenderableType
+from rich.padding import Padding
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
@@ -27,22 +30,34 @@ from kimi_cli.utils.signals import install_sigint_handler
 from kimi_cli.utils.term import ensure_new_line
 from kimi_cli.wire.message import StatusUpdate
 
+# --- 赛博科技风配色方案 (优化护眼版) ---
+_C_MAIN = "cyan1"  # 主色调 (青色) - 用于Logo
+_C_ACCENT = "medium_orchid1"  # 强调色 (淡紫) - 用于更新/高亮
+_C_TEXT = "white"  # 正文
+_C_DIM = "grey50"  # 暗淡/标签 - 降低对比度
+_C_BORDER = "grey35"  # 边框色 - 改为深灰，不再刺眼
+_C_WARN = "gold1"  # 警告
+_C_ERR = "red1"  # 错误
+_C_SUCCESS = "green3"  # 在线状态 - 稍微调暗一点的绿
+
 
 class Shell:
+    """命令行交互式 Shell 主类"""
+
     def __init__(self, soul: Soul, welcome_info: list[WelcomeInfoItem] | None = None):
         self.soul = soul
         self._welcome_info = list(welcome_info or [])
         self._background_tasks: set[asyncio.Task[Any]] = set()
 
     async def run(self, command: str | None = None) -> bool:
+        """运行交互式 Shell"""
         if command is not None:
-            # run single command and exit
-            logger.info("Running agent with command: {command}", command=command)
+            logger.info("执行命令: {command}", command=command)
             return await self._run_soul_command(command)
 
         self._start_background_task(self._auto_update())
 
-        _print_welcome_info(self.soul.name or "Kimi CLI", self._welcome_info)
+        _print_welcome_info(self.soul.name or "Kimi CLI", self._welcome_info, self.soul)
 
         if isinstance(self.soul, KimiSoul):
             await replay_recent_history(self.soul.context.history)
@@ -57,22 +72,16 @@ class Shell:
                     ensure_new_line()
                     user_input = await prompt_session.prompt()
                 except KeyboardInterrupt:
-                    logger.debug("Exiting by KeyboardInterrupt")
-                    console.print("[grey50]Tip: press Ctrl-D or send 'exit' to quit[/grey50]")
                     continue
                 except EOFError:
-                    logger.debug("Exiting by EOF")
-                    console.print("Bye!")
+                    self._print_goodbye()
                     break
 
                 if not user_input:
-                    logger.debug("Got empty input, skipping")
                     continue
-                logger.debug("Got user input: {user_input}", user_input=user_input)
 
                 if user_input.command in ["exit", "quit", "/exit", "/quit"]:
-                    logger.debug("Exiting by meta command")
-                    console.print("Bye!")
+                    self._print_goodbye()
                     break
 
                 if user_input.mode == PromptMode.SHELL:
@@ -80,110 +89,93 @@ class Shell:
                     continue
 
                 if user_input.command.startswith("/"):
-                    logger.debug("Running meta command: {command}", command=user_input.command)
                     await self._run_meta_command(user_input.command[1:])
                     continue
 
-                logger.info(
-                    "Running agent command: {command} with thinking {thinking}",
-                    command=user_input.content,
-                    thinking="on" if user_input.thinking else "off",
-                )
                 await self._run_soul_command(user_input.content, user_input.thinking)
 
         return True
 
+    def _print_goodbye(self) -> None:
+        """打印退出信息"""
+        grid = Table.grid(expand=False, padding=(0, 1))
+        grid.add_column(justify="center")
+
+        grid.add_row(Text.assemble(("⏻ ", _C_ERR), ("系统连接已断开", f"bold {_C_TEXT}")))
+        grid.add_row(Text("SESSION TERMINATED", style=f"italic {_C_DIM}"))
+
+        console.print()
+        console.print(Padding(grid, (0, 1)))
+        console.print()
+
     async def _run_shell_command(self, command: str) -> None:
-        """Run a shell command in foreground."""
+        """在前台运行 Shell 命令"""
         if not command.strip():
             return
 
-        # Check if user is trying to use 'cd' command
         stripped_cmd = command.strip()
         split_cmd = shlex.split(stripped_cmd)
-        if len(split_cmd) == 2 and split_cmd[0] == "cd":
-            console.print(
-                "[yellow]Warning: Directory changes are not preserved across command executions."
-                "[/yellow]"
-            )
-            return
 
-        logger.info("Running shell command: {cmd}", cmd=command)
+        if len(split_cmd) == 2 and split_cmd[0] == "cd":
+            console.print(f"[{_C_WARN}]⚠ 警告: Shell 目录变更不会在会话中保留[/{_C_WARN}]")
+            return
 
         proc: asyncio.subprocess.Process | None = None
 
         def _handler():
-            logger.debug("SIGINT received.")
             if proc:
                 proc.terminate()
 
         loop = asyncio.get_running_loop()
         remove_sigint = install_sigint_handler(loop, _handler)
         try:
-            # TODO: For the sake of simplicity, we now use `create_subprocess_shell`.
-            # Later we should consider making this behave like a real shell.
             proc = await asyncio.create_subprocess_shell(command)
             await proc.wait()
         except Exception as e:
-            logger.exception("Failed to run shell command:")
-            console.print(f"[red]Failed to run shell command: {e}[/red]")
+            console.print(f"[{_C_ERR}]✖ 执行失败: {e}[/{_C_ERR}]")
         finally:
             remove_sigint()
 
     async def _run_meta_command(self, command_str: str):
+        """执行元命令"""
         from kimi_cli.cli import Reload
 
         parts = command_str.split(" ")
         command_name = parts[0]
         command_args = parts[1:]
         command = get_meta_command(command_name)
+
         if command is None:
-            console.print(f"Meta command /{command_name} not found")
+            console.print(f"[{_C_ERR}]✖ 未知指令: /{command_name}[/{_C_ERR}]")
             return
+
         if command.kimi_soul_only and not isinstance(self.soul, KimiSoul):
-            console.print(f"Meta command /{command_name} not supported")
+            console.print(f"[{_C_ERR}]✖ 当前系统模式不支持此指令[/{_C_ERR}]")
             return
-        logger.debug(
-            "Running meta command: {command_name} with args: {command_args}",
-            command_name=command_name,
-            command_args=command_args,
-        )
+
         try:
             ret = command.func(self, command_args)
             if isinstance(ret, Awaitable):
                 await ret
-        except LLMNotSet:
-            logger.error("LLM not set")
-            console.print("[red]LLM not set, send /setup to configure[/red]")
-        except ChatProviderError as e:
-            logger.exception("LLM provider error:")
-            console.print(f"[red]LLM provider error: {e}[/red]")
+        except (LLMNotSet, ChatProviderError) as e:
+            console.print(f"[{_C_ERR}]✖ 系统错误: {e}[/{_C_ERR}]")
         except asyncio.CancelledError:
-            logger.info("Interrupted by user")
-            console.print("[red]Interrupted by user[/red]")
+            console.print(f"[{_C_DIM}]◈ 操作已取消[/{_C_DIM}]")
         except Reload:
-            # just propagate
             raise
         except BaseException as e:
-            logger.exception("Unknown error:")
-            console.print(f"[red]Unknown error: {e}[/red]")
-            raise  # re-raise unknown error
+            logger.exception("Command error")
+            console.print(f"[{_C_ERR}]✖ 严重错误: {e}[/{_C_ERR}]")
 
     async def _run_soul_command(
         self,
         user_input: str | list[ContentPart],
         thinking: bool | None = None,
     ) -> bool:
-        """
-        Run the soul and handle any known exceptions.
-
-        Returns:
-            bool: Whether the run is successful.
-        """
+        """运行 Soul 命令"""
         cancel_event = asyncio.Event()
 
         def _handler():
-            logger.debug("SIGINT received.")
             cancel_event.set()
 
         loop = asyncio.get_running_loop()
@@ -197,7 +189,7 @@ class Shell:
                 self.soul,
                 user_input,
                 lambda wire: visualize(
-                    wire.ui_side(merge=False),  # shell UI maintain its own merge buffer
+                    wire.ui_side(merge=False),
                     initial_status=StatusUpdate(context_usage=self.soul.status.context_usage),
                     cancel_event=cancel_event,
                 ),
@@ -205,128 +197,158 @@ class Shell:
                 self.soul.wire_file_backend if isinstance(self.soul, KimiSoul) else None,
             )
             return True
-        except LLMNotSet:
-            logger.error("LLM not set")
-            console.print("[red]LLM not set, send /setup to configure[/red]")
-        except LLMNotSupported as e:
-            # actually unsupported input/mode should already be blocked by prompt session
-            logger.error(
-                "LLM model '{model_name}' does not support required capabilities: {capabilities}",
-                model_name=e.llm.model_name,
-                capabilities=", ".join(e.capabilities),
-            )
-            console.print(f"[red]{e}[/red]")
-        except ChatProviderError as e:
-            logger.exception("LLM provider error:")
-            if isinstance(e, APIStatusError) and e.status_code == 401:
-                console.print("[red]Authorization failed, please check your API key[/red]")
-            elif isinstance(e, APIStatusError) and e.status_code == 402:
-                console.print("[red]Membership expired, please renew your plan[/red]")
-            elif isinstance(e, APIStatusError) and e.status_code == 403:
-                console.print("[red]Quota exceeded, please upgrade your plan or retry later[/red]")
+        except Exception as e:
+            if isinstance(e, (LLMNotSet, LLMNotSupported, ChatProviderError)):
+                console.print(f"[{_C_ERR}]✖ 服务异常: {e}[/{_C_ERR}]")
+            elif isinstance(e, MaxStepsReached):
+                console.print(f"[{_C_WARN}]⚡ 已达最大处理步数[/{_C_WARN}]")
+            elif isinstance(e, RunCancelled):
+                console.print(f"[{_C_DIM}]◈ 用户中断操作[/{_C_DIM}]")
             else:
-                console.print(f"[red]LLM provider error: {e}[/red]")
-        except MaxStepsReached as e:
-            logger.warning("Max steps reached: {n_steps}", n_steps=e.n_steps)
-            console.print(f"[yellow]Max steps reached: {e.n_steps}[/yellow]")
-        except RunCancelled:
-            logger.info("Cancelled by user")
-            console.print("[red]Interrupted by user[/red]")
-        except BaseException as e:
-            logger.exception("Unknown error:")
-            console.print(f"[red]Unknown error: {e}[/red]")
-            raise  # re-raise unknown error
+                logger.exception("Runtime error")
+                console.print(f"[{_C_ERR}]✖ 系统内核错误: {e}[/{_C_ERR}]")
         finally:
             remove_sigint()
         return False
 
     async def _auto_update(self) -> None:
-        toast("checking for updates...", topic="update", duration=2.0)
-        result = await do_update(print=False, check_only=True)
-        if result == UpdateResult.UPDATE_AVAILABLE:
-            while True:
-                toast(
-                    "new version found, run `uv tool upgrade kimi-cli` to upgrade",
-                    topic="update",
-                    duration=30.0,
-                )
-                await asyncio.sleep(60.0)
-        elif result == UpdateResult.UPDATED:
-            toast("auto updated, restart to use the new version", topic="update", duration=5.0)
+        """后台更新检查"""
+        try:
+            result = await do_update(print=False, check_only=True)
+            if result == UpdateResult.UPDATE_AVAILABLE:
+                toast("系统发现新版本", topic="update", duration=10.0)
+        except Exception:
+            pass
 
     def _start_background_task(self, coro: Coroutine[Any, Any, Any]) -> asyncio.Task[Any]:
         task = asyncio.create_task(coro)
         self._background_tasks.add(task)
-
-        def _cleanup(t: asyncio.Task[Any]) -> None:
-            self._background_tasks.discard(t)
-            try:
-                t.result()
-            except asyncio.CancelledError:
-                pass
-            except Exception:
-                logger.exception("Background task failed:")
-
-        task.add_done_callback(_cleanup)
+        task.add_done_callback(lambda t: self._background_tasks.discard(t))
         return task
-
-
-_KIMI_BLUE = "dodger_blue1"
-_LOGO = f"""\
-[{_KIMI_BLUE}]\
-▐█▛█▛█▌
-▐█████▌\
-[{_KIMI_BLUE}]\
-"""
 
 
 @dataclass(slots=True)
 class WelcomeInfoItem:
     class Level(Enum):
-        INFO = "grey50"
-        WARN = "yellow"
-        ERROR = "red"
+        INFO = _C_DIM
+        WARN = _C_WARN
+        ERROR = _C_ERR
 
     name: str
     value: str
     level: Level = Level.INFO
 
 
-def _print_welcome_info(name: str, info_items: list[WelcomeInfoItem]) -> None:
-    head = Text.from_markup(f"[bold]Welcome to {name}![/bold]")
-    help_text = Text.from_markup("[grey50]Send /help for help information.[/grey50]")
+def _get_mcp_stats(soul: Soul | None = None) -> tuple[int, int]:
+    """安全获取 MCP 统计"""
+    try:
+        if not soul or not isinstance(soul, KimiSoul):
+            return 0, 0
 
-    # Use Table for precise width control
-    logo = Text.from_markup(_LOGO)
-    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 1), expand=False)
-    table.add_column(justify="left")
-    table.add_column(justify="left")
-    table.add_row(logo, Group(head, help_text))
+        if not hasattr(soul, "_agent") or not soul._agent:
+            return 0, 0
 
-    rows: list[RenderableType] = [table]
+        toolset = getattr(soul._agent, "toolset", None)
+        if not toolset or not hasattr(toolset, "tools"):
+            return 0, 0
 
-    if info_items:
-        rows.append(Text(""))  # empty line
-    for item in info_items:
-        rows.append(Text(f"{item.name}: {item.value}", style=item.level.value))
+        mcp_tools = [t for t in toolset.tools if hasattr(t, "_mcp_tool")]
+        return len(mcp_tools), 0
+    except Exception:
+        return 0, 0
 
-    if LATEST_VERSION_FILE.exists():
-        from kimi_cli.constant import VERSION as current_version
 
-        latest_version = LATEST_VERSION_FILE.read_text(encoding="utf-8").strip()
-        if semver_tuple(latest_version) > semver_tuple(current_version):
-            rows.append(
-                Text.from_markup(
-                    f"\n[yellow]New version available: {latest_version}. "
-                    "Please run `uv tool upgrade kimi-cli` to upgrade.[/yellow]"
-                )
-            )
+def _print_welcome_info(
+    name: str, info_items: list[WelcomeInfoItem], soul: Soul | None = None
+) -> None:
+    """打印科技风格仪表盘欢迎信息"""
+    from kimi_cli.constant import VERSION as current_version
 
-    console.print(
-        Panel(
-            Group(*rows),
-            border_style=_KIMI_BLUE,
-            expand=False,
-            padding=(1, 2),
-        )
+    mcp_count, _ = _get_mcp_stats(soul)
+
+    # 1. 构建主布局
+    layout = Table.grid(expand=True)
+
+    # 2. 顶部 Header
+    header_table = Table.grid(expand=True)
+    header_table.add_column(justify="left", ratio=1)
+    header_table.add_column(justify="right", ratio=1)
+
+    logo_text = Text("KIMI CLI", style=f"bold {_C_MAIN}")
+    status_text = Text.assemble(
+        ("● ", _C_SUCCESS), ("系统在线 ", f"{_C_SUCCESS} bold"), (f"v{current_version}", _C_DIM)
     )
+    header_table.add_row(logo_text, status_text)
+
+    layout.add_row(header_table)
+
+    # 装饰线 - 使用更低调的颜色
+    layout.add_row(Text("─" * 40, style=f"dim {_C_BORDER}"))
+    layout.add_row(Text(""))  # Spacer
+
+    # 3. 信息概览区
+    info_grid = Table.grid(padding=(0, 2))
+    info_grid.add_column(style=f"{_C_DIM}", justify="left", width=4)  # Icon 列
+    info_grid.add_column(style=f"{_C_TEXT}", justify="left", width=12)  # Label 列
+    info_grid.add_column(style=_C_DIM, justify="left")  # Value 列
+
+    # MCP 状态
+    if mcp_count > 0:
+        info_grid.add_row("⚡", "MCP 扩展", Text(f"已加载 {mcp_count} 个工具模块", style=_C_TEXT))
+
+    # 更新检查
+    if LATEST_VERSION_FILE.exists():
+        try:
+            latest = LATEST_VERSION_FILE.read_text(encoding="utf-8").strip()
+            if semver_tuple(latest) > semver_tuple(current_version):
+                info_grid.add_row(
+                    "↑", "系统更新", Text(f"新版本 {latest} 准备就绪", style=_C_ACCENT)
+                )
+        except Exception:
+            pass
+
+    # 其他信息 (Model, Path, etc.)
+    # 这里根据传入的 info_items 显示
+    for item in info_items:
+        icon = "ℹ"
+        if item.level == WelcomeInfoItem.Level.WARN:
+            icon = "⚠"
+        if item.level == WelcomeInfoItem.Level.ERROR:
+            icon = "✖"
+
+        info_grid.add_row(
+            icon,
+            item.name,
+            Text(item.value, style=item.level.value),
+        )
+
+    if mcp_count == 0 and not info_items:
+        info_grid.add_row("◈", "系统就绪", "等待指令输入...")
+
+    layout.add_row(Padding(info_grid, (0, 0, 0, 1)))
+    layout.add_row(Text(""))  # Spacer
+
+    # 4. 底部操作栏 - 使用 Text.assemble 避免 markup 解析问题
+    footer_text = Text.assemble(
+        ("指令集 ", _C_DIM),
+        ("/help", f"bold {_C_TEXT}"),
+        (" • ", _C_DIM),
+        ("工具箱 ", _C_DIM),
+        ("/mcp", f"bold {_C_TEXT}"),
+        (" • ", _C_DIM),
+        ("退出 ", _C_DIM),
+        ("Ctrl+D", f"bold {_C_TEXT}"),
+    )
+
+    panel = Panel(
+        layout,
+        border_style=_C_BORDER,
+        box=box.ROUNDED,
+        padding=(0, 2),
+        subtitle=footer_text,
+        subtitle_align="right",
+    )
+
+    console.print()
+    console.print(panel)
+    console.print()

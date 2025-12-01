@@ -34,7 +34,7 @@ def _format_content_part(part: ContentPart) -> Text | Panel | Group:
             if text.strip().startswith("<system>") and text.strip().endswith("</system>"):
                 return Panel(
                     text.strip()[8:-9].strip(),
-                    title="[dim]system[/dim]",
+                    title="[dim]系统[/dim]",
                     border_style="dim yellow",
                     padding=(0, 1),
                 )
@@ -43,7 +43,7 @@ def _format_content_part(part: ContentPart) -> Text | Panel | Group:
         case ThinkPart(think=think):
             return Panel(
                 think,
-                title="[dim]thinking[/dim]",
+                title="[dim]思考中[/dim]",
                 border_style="dim cyan",
                 padding=(0, 1),
             )
@@ -51,15 +51,15 @@ def _format_content_part(part: ContentPart) -> Text | Panel | Group:
         case ImageURLPart(image_url=img):
             url_display = img.url[:80] + "..." if len(img.url) > 80 else img.url
             id_text = f" (id: {img.id})" if img.id else ""
-            return Text(f"[Image{id_text}] {url_display}", style="blue")
+            return Text(f"[图像{id_text}] {url_display}", style="blue")
 
         case AudioURLPart(audio_url=audio):
             url_display = audio.url[:80] + "..." if len(audio.url) > 80 else audio.url
             id_text = f" (id: {audio.id})" if audio.id else ""
-            return Text(f"[Audio{id_text}] {url_display}", style="blue")
+            return Text(f"[音频{id_text}] {url_display}", style="blue")
 
         case _:
-            return Text(f"[Unknown content type: {type(part).__name__}]", style="red")
+            return Text(f"[未知内容类型: {type(part).__name__}]", style="red")
 
 
 def _format_tool_call(tool_call: ToolCall) -> Panel:
@@ -72,15 +72,15 @@ def _format_tool_call(tool_call: ToolCall) -> Panel:
         args_syntax = Text(args, style="red")
 
     content = Group(
-        Text(f"Function: {tool_call.function.name}", style="bold cyan"),
-        Text(f"Call ID: {tool_call.id}", style="dim"),
-        Text("Arguments:", style="bold"),
+        Text(f"函数: {tool_call.function.name}", style="bold cyan"),
+        Text(f"调用ID: {tool_call.id}", style="dim"),
+        Text("参数:", style="bold"),
         args_syntax,
     )
 
     return Panel(
         content,
-        title="[bold yellow]Tool Call[/bold yellow]",
+        title="[bold yellow]工具调用[/bold yellow]",
         border_style="yellow",
         padding=(0, 1),
     )
@@ -96,8 +96,16 @@ def _format_message(msg: Message, index: int) -> Panel:
         "assistant": "blue",
         "tool": "yellow",
     }
+    role_map = {
+        "system": "系统",
+        "developer": "开发者",
+        "user": "用户",
+        "assistant": "助手",
+        "tool": "工具",
+    }
     role_color = role_colors.get(msg.role, "white")
-    role_text = f"[bold {role_color}]{msg.role.upper()}[/bold {role_color}]"
+    role_name = role_map.get(msg.role, msg.role).upper()
+    role_text = f"[bold {role_color}]{role_name}[/bold {role_color}]"
 
     # Add name if present
     if msg.name:
@@ -126,14 +134,14 @@ def _format_message(msg: Message, index: int) -> Panel:
 
     # Combine all content
     if not content_items:
-        content_items.append(Text("[empty message]", style="dim italic"))
+        content_items.append(Text("[空消息]", style="dim italic"))
 
     group = Group(*content_items)
 
     # Create panel
     title = f"#{index + 1} {role_text}"
     if msg.partial:
-        title += " [dim italic](partial)[/dim italic]"
+        title += " [dim italic](部分)[/dim italic]"
 
     return Panel(
         group,
@@ -145,7 +153,7 @@ def _format_message(msg: Message, index: int) -> Panel:
 
 @meta_command(kimi_soul_only=True)
 def debug(app: Shell, args: list[str]):
-    """Debug the context"""
+    """调试上下文"""
     assert isinstance(app.soul, KimiSoul)
 
     context = app.soul._context
@@ -154,7 +162,7 @@ def debug(app: Shell, args: list[str]):
     if not history:
         console.print(
             Panel(
-                "Context is empty - no messages yet",
+                "上下文为空 - 尚无消息",
                 border_style="yellow",
                 padding=(1, 2),
             )
@@ -165,12 +173,12 @@ def debug(app: Shell, args: list[str]):
     output_items = [
         Panel(
             Group(
-                Text(f"Total messages: {len(history)}", style="bold"),
-                Text(f"Token count: {context.token_count:,}", style="bold"),
-                Text(f"Checkpoints: {context.n_checkpoints}", style="bold"),
-                Text(f"Trajectory: {context._file_backend}", style="dim"),
+                Text(f"总消息数: {len(history)}", style="bold"),
+                Text(f"Token 数量: {context.token_count:,}", style="bold"),
+                Text(f"检查点数: {context.n_checkpoints}", style="bold"),
+                Text(f"轨迹文件: {context._file_backend}", style="dim"),
             ),
-            title="[bold]Context Info[/bold]",
+            title="[bold]上下文信息[/bold]",
             border_style="cyan",
             padding=(0, 1),
         ),

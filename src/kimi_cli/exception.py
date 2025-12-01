@@ -2,18 +2,18 @@ from __future__ import annotations
 
 
 class KimiCLIException(Exception):
-    """Base exception class for Kimi CLI."""
+    """Kimi CLI 的基础异常类。"""
 
     pass
 
 
 class ConfigError(KimiCLIException):
-    """Configuration error."""
+    """配置错误。"""
 
     pass
 
 
 class AgentSpecError(KimiCLIException):
-    """Agent specification error."""
+    """代理规范错误。"""
 
     pass

@@ -1,1 +1,1 @@
-Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed.
+使用此工具进行思考。它不会获取新信息或更改数据库，而只是将思考内容附加到日志中。当需要复杂的推理或一些缓存记忆时使用它。

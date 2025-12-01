@@ -1,6 +1,6 @@
-# Example: Kimi CLI Stream JSON
+# 示例：Kimi CLI 流式 JSON
 
-This example demonstrates how to run Kimi CLI in a subprocess and interact with it using JSON messages over standard input and output.
+此示例演示了如何在子进程中运行 Kimi CLI，并通过标准输入和输出使用 JSON 消息与它进行交互。
 
 ```sh
 cd examples/kimi-cli-stream-json

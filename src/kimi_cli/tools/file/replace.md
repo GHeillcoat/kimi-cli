@@ -1,7 +1,7 @@
-Replace specific strings within a specified file.
+替换指定文件中的特定字符串。
 
-**Tips:**
-- Only use this tool on text files.
-- Multi-line strings are supported.
-- Can specify a single edit or a list of edits in one call.
-- You should prefer this tool over WriteFile tool and Shell `sed` command.
+**提示：**
+- 仅在文本文件上使用此工具。
+- 支持多行字符串。
+- 可以在一次调用中指定单个编辑或编辑列表。
+- 您应该优先使用此工具，而不是 WriteFile 工具和 Shell `sed` 命令。

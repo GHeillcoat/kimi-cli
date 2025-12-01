@@ -18,20 +18,20 @@ def get_metadata_file() -> Path:
 
 
 class WorkDirMeta(BaseModel):
-    """Metadata for a work directory."""
+    """工作目录的元数据。"""
 
     path: str
-    """The full path of the work directory."""
+    """工作目录的完整路径。"""
 
     kaos: str = local_kaos.name
-    """The name of the KAOS where the work directory is located."""
+    """工作目录所在的 KAOS 名称。"""
 
     last_session_id: str | None = None
-    """Last session ID of this work directory."""
+    """此工作目录的最后一个会话 ID。"""
 
     @property
     def sessions_dir(self) -> Path:
-        """The directory to store sessions for this work directory."""
+        """此工作目录存储会话的目录。"""
         path_md5 = md5(self.path.encode(encoding="utf-8")).hexdigest()
         dir_basename = path_md5 if self.kaos == local_kaos.name else f"{self.kaos}_{path_md5}"
         session_dir = get_share_dir() / "sessions" / dir_basename
@@ -40,23 +40,23 @@ class WorkDirMeta(BaseModel):
 
 
 class Metadata(BaseModel):
-    """Kimi metadata structure."""
+    """Kimi 元数据结构。"""
 
     work_dirs: list[WorkDirMeta] = Field(default_factory=list[WorkDirMeta])
-    """Work directory list."""
+    """工作目录列表。"""
 
     thinking: bool = False
-    """Whether the last session was in thinking mode."""
+    """上次会话是否处于思考模式。"""
 
     def get_work_dir_meta(self, path: KaosPath) -> WorkDirMeta | None:
-        """Get the metadata for a work directory."""
+        """获取工作目录的元数据。"""
         for wd in self.work_dirs:
             if wd.path == str(path) and wd.kaos == get_current_kaos().name:
                 return wd
         return None
 
     def new_work_dir_meta(self, path: KaosPath) -> WorkDirMeta:
-        """Create a new work directory metadata."""
+        """创建一个新的工作目录元数据。"""
         wd_meta = WorkDirMeta(path=str(path), kaos=get_current_kaos().name)
         self.work_dirs.append(wd_meta)
         return wd_meta
@@ -64,9 +64,9 @@ class Metadata(BaseModel):
 
 def load_metadata() -> Metadata:
     metadata_file = get_metadata_file()
-    logger.debug("Loading metadata from file: {file}", file=metadata_file)
+    logger.debug("正在从文件加载元数据: {file}", file=metadata_file)
     if not metadata_file.exists():
-        logger.debug("No metadata file found, creating empty metadata")
+        logger.debug("未找到元数据文件，正在创建空元数据")
         return Metadata()
     with open(metadata_file, encoding="utf-8") as f:
         data = json.load(f)
@@ -75,6 +75,6 @@ def load_metadata() -> Metadata:
 
 def save_metadata(metadata: Metadata):
     metadata_file = get_metadata_file()
-    logger.debug("Saving metadata to file: {file}", file=metadata_file)
+    logger.debug("正在将元数据保存到文件: {file}", file=metadata_file)
     with open(metadata_file, "w", encoding="utf-8") as f:
         json.dump(metadata.model_dump(), f, indent=2, ensure_ascii=False)

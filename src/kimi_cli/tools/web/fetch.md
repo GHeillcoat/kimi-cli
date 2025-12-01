@@ -1,1 +1,1 @@
-Fetch a web page from a URL and extract main text content from it.
+从 URL 获取网页并从中提取主要文本内容。

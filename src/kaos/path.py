@@ -13,7 +13,7 @@ import kaos
 
 class KaosPath:
     """
-    A path abstraction for KAOS filesystem.
+    KAOS 文件系统的路径抽象。
     """
 
     def __init__(self, *args: str) -> None:
@@ -22,15 +22,15 @@ class KaosPath:
     @classmethod
     def unsafe_from_local_path(cls, path: Path) -> KaosPath:
         """
-        Create a `KaosPath` from a local `Path`.
-        Only use this if you are sure that `LocalKaos` is being used.
+        从本地 `Path` 创建 `KaosPath`。
+        仅在确定使用 `LocalKaos` 时才使用此方法。
         """
         return cls(str(path))
 
     def unsafe_to_local_path(self) -> Path:
         """
-        Convert the `KaosPath` to a local `Path`.
-        Only use this if you are sure that `LocalKaos` is being used.
+        将 `KaosPath` 转换为本地 `Path`。
+        仅在确定使用 `LocalKaos` 时才使用此方法。
         """
         return Path(str(self._path))
 
@@ -59,24 +59,24 @@ class KaosPath:
 
     @property
     def name(self) -> str:
-        """Return the final component of the path."""
+        """返回路径的最后一个组件。"""
         return self._path.name
 
     @property
     def parent(self) -> KaosPath:
-        """Return the parent directory of the path."""
+        """返回路径的父目录。"""
         return KaosPath(str(self._path.parent))
 
     def is_absolute(self) -> bool:
-        """Return True if the path is absolute."""
+        """如果路径是绝对路径，则返回 True。"""
         return self._path.is_absolute()
 
     def joinpath(self, *other: str) -> KaosPath:
-        """Join this path with other path components."""
+        """将此路径与其他路径组件连接。"""
         return KaosPath(str(self._path.joinpath(*other)))
 
     def __truediv__(self, other: str | KaosPath) -> KaosPath:
-        """Join this path with another path using the `/` operator."""
+        """使用 `/` 运算符将此路径与另一个路径连接。"""
         p = other._path if isinstance(other, KaosPath) else other
         ret = KaosPath()
         ret._path = self._path.__truediv__(p)
@@ -84,8 +84,8 @@ class KaosPath:
 
     def canonical(self) -> KaosPath:
         """
-        Make the path absolute, resolving all `.` and `..` in the path.
-        Unlike `pathlib.Path.resolve`, this method does not resolve symlinks.
+        使路径成为绝对路径，解析路径中的所有 `.` 和 `..`。
+        与 `pathlib.Path.resolve` 不同，此方法不解析符号链接。
         """
         abs_path = self if self.is_absolute() else kaos.getcwd().joinpath(str(self._path))
 
@@ -97,33 +97,33 @@ class KaosPath:
         normalized = path_parser.normpath(abs_path._path)
         assert isinstance(normalized, str)
 
-        # `normpath` might strip trailing slash, but we want to preserve it for directories
-        # However, since we don't access the filesystem, we can't know if it's a directory
-        # So we follow the pathlib behavior which doesn't preserve trailing slashes
+        # `normpath` 可能会去除尾部斜杠，但我们希望为目录保留它
+        # 但是，由于我们不访问文件系统，我们无法知道它是否是目录
+        # 因此我们遵循 pathlib 的行为，即不保留尾部斜杠
 
         return KaosPath(normalized)
 
     def relative_to(self, other: KaosPath) -> KaosPath:
-        """Return the relative path from `other` to this path."""
+        """返回从 `other` 到此路径的相对路径。"""
         relative_path = self._path.relative_to(other._path)
         return KaosPath(str(relative_path))
 
     @classmethod
     def home(cls) -> KaosPath:
-        """Return the home directory as a KaosPath."""
+        """以 KaosPath 形式返回主目录。"""
         return kaos.gethome()
 
     @classmethod
     def cwd(cls) -> KaosPath:
-        """Return the current working directory as a KaosPath."""
+        """以 KaosPath 形式返回当前工作目录。"""
         return kaos.getcwd()
 
     async def stat(self, follow_symlinks: bool = True) -> os.stat_result:
-        """Return an os.stat_result for the path."""
+        """返回路径的 os.stat_result。"""
         return await kaos.stat(self, follow_symlinks=follow_symlinks)
 
     async def exists(self, *, follow_symlinks: bool = True) -> bool:
-        """Return True if the path points to an existing filesystem entry."""
+        """如果路径指向现有文件系统条目，则返回 True。"""
         try:
             await self.stat(follow_symlinks=follow_symlinks)
             return True
@@ -131,7 +131,7 @@ class KaosPath:
             return False
 
     async def is_file(self, *, follow_symlinks: bool = True) -> bool:
-        """Return True if the path points to a regular file."""
+        """如果路径指向常规文件，则返回 True。"""
         try:
             st = await self.stat(follow_symlinks=follow_symlinks)
             return S_ISREG(st.st_mode)
@@ -139,7 +139,7 @@ class KaosPath:
             return False
 
     async def is_dir(self, *, follow_symlinks: bool = True) -> bool:
-        """Return True if the path points to a directory."""
+        """如果路径指向目录，则返回 True。"""
         try:
             st = await self.stat(follow_symlinks=follow_symlinks)
             return S_ISDIR(st.st_mode)
@@ -147,15 +147,15 @@ class KaosPath:
             return False
 
     async def iterdir(self) -> AsyncGenerator[KaosPath]:
-        """Return the direct children of the directory."""
+        """返回目录的直接子项。"""
         return await kaos.iterdir(self)
 
     async def glob(self, pattern: str, *, case_sensitive: bool = True) -> AsyncGenerator[KaosPath]:
-        """Return all paths matching the pattern under this directory."""
+        """返回此目录下所有匹配模式的路径。"""
         return await kaos.glob(self, pattern, case_sensitive=case_sensitive)
 
     async def read_bytes(self) -> bytes:
-        """Read the entire file contents as bytes."""
+        """将整个文件内容作为字节读取。"""
         return await kaos.readbytes(self)
 
     async def read_text(
@@ -164,7 +164,7 @@ class KaosPath:
         encoding: str = "utf-8",
         errors: Literal["strict", "ignore", "replace"] = "strict",
     ) -> str:
-        """Read the entire file contents as text."""
+        """将整个文件内容作为文本读取。"""
         return await kaos.readtext(self, encoding=encoding, errors=errors)
 
     async def read_lines(
@@ -173,11 +173,11 @@ class KaosPath:
         encoding: str = "utf-8",
         errors: Literal["strict", "ignore", "replace"] = "strict",
     ) -> AsyncGenerator[str]:
-        """Iterate over the lines of the file."""
+        """迭代文件的行。"""
         return await kaos.readlines(self, encoding=encoding, errors=errors)
 
     async def write_bytes(self, data: bytes) -> int:
-        """Write bytes data to the file."""
+        """将字节数据写入文件。"""
         return await kaos.writebytes(self, data)
 
     async def write_text(
@@ -187,7 +187,7 @@ class KaosPath:
         encoding: str = "utf-8",
         errors: Literal["strict", "ignore", "replace"] = "strict",
     ) -> int:
-        """Write text data to the file, returning the number of characters written."""
+        """将文本数据写入文件，并返回写入的字符数。"""
         return await kaos.writetext(
             self,
             data,
@@ -203,7 +203,7 @@ class KaosPath:
         encoding: str = "utf-8",
         errors: Literal["strict", "ignore", "replace"] = "strict",
     ) -> int:
-        """Append text data to the file, returning the number of characters written."""
+        """将文本数据追加到文件，并返回写入的字符数。"""
         return await kaos.writetext(
             self,
             data,
@@ -213,5 +213,5 @@ class KaosPath:
         )
 
     async def mkdir(self, parents: bool = False, exist_ok: bool = False) -> None:
-        """Create a directory at this path."""
+        """在此路径创建目录。"""
         return await kaos.mkdir(self, parents=parents, exist_ok=exist_ok)

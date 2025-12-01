@@ -1,17 +1,17 @@
-Find files and directories using glob patterns. This tool supports standard glob syntax like `*`, `?`, and `**` for recursive searches.
+使用 glob 模式查找文件和目录。此工具支持标准的 glob 语法，例如 `*`、`?` 和 `**` 用于递归搜索。
 
-**When to use:**
-- Find files matching specific patterns (e.g., all Python files: `*.py`)
-- Search for files recursively in subdirectories (e.g., `src/**/*.js`)
-- Locate configuration files (e.g., `*.config.*`, `*.json`)
-- Find test files (e.g., `test_*.py`, `*_test.go`)
+**何时使用：**
+- 查找匹配特定模式的文件（例如，所有 Python 文件：`*.py`）
+- 在子目录中递归搜索文件（例如，`src/**/*.js`）
+- 定位配置文件（例如，`*.config.*`、`*.json`）
+- 查找测试文件（例如，`test_*.py`、`*_test.go`）
 
-**Example patterns:**
-- `*.py` - All Python files in current directory
-- `src/**/*.js` - All JavaScript files in src directory recursively
-- `test_*.py` - Python test files starting with "test_"
-- `*.config.{js,ts}` - Config files with .js or .ts extension
+**示例模式：**
+- `*.py` - 当前目录中的所有 Python 文件
+- `src/**/*.js` - src 目录中递归的所有 JavaScript 文件
+- `test_*.py` - 以 "test_" 开头的 Python 测试文件
+- `*.config.{js,ts}` - 扩展名为 .js 或 .ts 的配置文件
 
-**Bad example patterns:**
-- `**`, `**/*.py` - Any pattern starting with '**' will be rejected. Because it would recursively search all directories and subdirectories, which is very likely to yield large result that exceeds your context size. Always use more specific patterns like `src/**/*.py` instead.
-- `node_modules/**/*.js` - Although this does not start with '**', it would still highly possible to yield large result because `node_modules` is well-known to contain too many directories and files. Avoid recursively searching in such directories, other examples include `venv`, `.venv`, `__pycache__`, `target`. If you really need to search in a dependency, use more specific patterns like `node_modules/react/src/*` instead.
+**不良示例模式：**
+- `**`、`**/*.py` - 任何以 `**` 开头的模式都将被拒绝。因为它会递归搜索所有目录和子目录，这很可能会产生超出你上下文大小的巨大结果。请始终使用更具体的模式，例如 `src/**/*.py`。
+- `node_modules/**/*.js` - 尽管这不以 `**` 开头，但它仍然很可能产生巨大的结果，因为 `node_modules` 众所周知包含太多目录和文件。避免在此类目录中进行递归搜索，其他示例包括 `venv`、`.venv`、`__pycache__`、`target`。如果你确实需要在依赖项中搜索，请使用更具体的模式，例如 `node_modules/react/src/*`。

@@ -11,29 +11,29 @@ from kimi_cli.utils.logging import logger
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Session:
-    """A session of a work directory."""
+    """工作目录的一个会话。"""
 
     id: str
-    """The session ID."""
+    """会话 ID。"""
     work_dir: KaosPath
-    """The absolute path of the work directory."""
+    """工作目录的绝对路径。"""
     work_dir_meta: WorkDirMeta
-    """The metadata of the work directory."""
+    """工作目录的元数据。"""
     context_file: Path
-    """The absolute path to the file storing the message history."""
+    """存储消息历史的文件的绝对路径。"""
 
     @property
     def dir(self) -> Path:
-        """The absolute path of the session directory."""
+        """会话目录的绝对路径。"""
         path = self.work_dir_meta.sessions_dir / self.id
         path.mkdir(parents=True, exist_ok=True)
         return path
 
     @staticmethod
     async def create(work_dir: KaosPath, _context_file: Path | None = None) -> Session:
-        """Create a new session for a work directory."""
+        """为工作目录创建一个新会话。"""
         work_dir = work_dir.canonical()
-        logger.debug("Creating new session for work directory: {work_dir}", work_dir=work_dir)
+        logger.debug("正在为工作目录创建新会话: {work_dir}", work_dir=work_dir)
 
         metadata = load_metadata()
         work_dir_meta = metadata.get_work_dir_meta(work_dir)
@@ -48,7 +48,7 @@ class Session:
             context_file = session_dir / "context.jsonl"
         else:
             logger.warning(
-                "Using provided context file: {context_file}", context_file=_context_file
+                "正在使用提供的上下文文件: {context_file}", context_file=_context_file
             )
             _context_file.parent.mkdir(parents=True, exist_ok=True)
             if _context_file.exists():
@@ -58,7 +58,7 @@ class Session:
         if context_file.exists():
             # truncate if exists
             logger.warning(
-                "Context file already exists, truncating: {context_file}", context_file=context_file
+                "上下文文件已存在，正在截断: {context_file}", context_file=context_file
             )
             context_file.unlink()
             context_file.touch()
@@ -74,21 +74,21 @@ class Session:
 
     @staticmethod
     async def continue_(work_dir: KaosPath) -> Session | None:
-        """Get the last session for a work directory."""
+        """获取工作目录的最后一个会话。"""
         work_dir = work_dir.canonical()
-        logger.debug("Continuing session for work directory: {work_dir}", work_dir=work_dir)
+        logger.debug("正在继续工作目录的会话: {work_dir}", work_dir=work_dir)
 
         metadata = load_metadata()
         work_dir_meta = metadata.get_work_dir_meta(work_dir)
         if work_dir_meta is None:
-            logger.debug("Work directory never been used")
+            logger.debug("工作目录从未被使用过")
             return None
         if work_dir_meta.last_session_id is None:
-            logger.debug("Work directory never had a session")
+            logger.debug("工作目录从未有过会话")
             return None
 
         logger.debug(
-            "Found last session for work directory: {session_id}",
+            "找到工作目录的最后一个会话: {session_id}",
             session_id=work_dir_meta.last_session_id,
         )
         session_id = work_dir_meta.last_session_id
@@ -112,7 +112,7 @@ def _migrate_session_context_file(work_dir_meta: WorkDirMeta, session_id: str) -
         new_context_file.parent.mkdir(parents=True, exist_ok=True)
         old_context_file.rename(new_context_file)
         logger.info(
-            "Migrated session context file from {old} to {new}",
+            "已将会话上下文文件从 {old} 迁移到 {new}",
             old=old_context_file,
             new=new_context_file,
         )

@@ -25,15 +25,15 @@ if TYPE_CHECKING:
 
 type MetaCmdFunc = Callable[[Shell, list[str]], None | Awaitable[None]]
 """
-A function that runs as a meta command.
+一个作为元命令运行的函数。
 
 Raises:
-    LLMNotSet: When the LLM is not set.
-    ChatProviderError: When the LLM provider returns an error.
-    Reload: When the configuration should be reloaded.
-    asyncio.CancelledError: When the command is interrupted by user.
+    LLMNotSet: 当未设置LLM时。
+    ChatProviderError: 当LLM提供商返回错误时。
+    Reload: 当应重新加载配置时。
+    asyncio.CancelledError: 当用户中断命令时。
 
-This is quite similar to the `Soul.run` method.
+这与 `Soul.run` 方法非常相似。
 """
 
 
@@ -137,20 +137,20 @@ def meta_command(
 
 @meta_command(aliases=["quit"])
 def exit(app: Shell, args: list[str]):
-    """Exit the application"""
+    """退出应用程序"""
     # should be handled by `Shell`
     raise NotImplementedError
 
 
 _HELP_MESSAGE_FMT = """
-[grey50]▌ Help! I need somebody. Help! Not just anybody.[/grey50]
-[grey50]▌ Help! You know I need someone. Help![/grey50]
-[grey50]▌ ― The Beatles, [italic]Help![/italic][/grey50]
+[grey50]▌ 救命！我需要有个人来。救命！不是随便哪个人。[/grey50]
+[grey50]▌ 救命！你知道我需要有个人。救命！[/grey50]
+[grey50]▌ ― 披头士乐队, [italic]《救命！》[/italic][/grey50]
 
-Sure, Kimi CLI is ready to help!
-Just send me messages and I will help you get things done!
+当然，Kimi CLI 随时准备提供帮助！
+只需向我发送消息，我将帮助您完成任务！
 
-Meta commands are also available:
+此外还提供以下元命令：
 
 [grey50]{meta_commands_md}[/grey50]
 """
@@ -158,7 +158,7 @@ Meta commands are also available:
 
 @meta_command(aliases=["h", "?"])
 def help(app: Shell, args: list[str]):
-    """Show help information"""
+    """显示帮助信息"""
     console.print(
         Panel(
             _HELP_MESSAGE_FMT.format(
@@ -167,7 +167,7 @@ def help(app: Shell, args: list[str]):
                     for command in get_meta_commands()
                 )
             ).strip(),
-            title="Kimi CLI Help",
+            title="Kimi CLI 帮助",
             border_style="wheat4",
             expand=False,
             padding=(1, 2),
@@ -177,7 +177,7 @@ def help(app: Shell, args: list[str]):
 
 @meta_command
 def version(app: Shell, args: list[str]):
-    """Show version information"""
+    """显示版本信息"""
     from kimi_cli.constant import VERSION
 
     console.print(f"kimi, version {VERSION}")
@@ -185,56 +185,56 @@ def version(app: Shell, args: list[str]):
 
 @meta_command(name="release-notes")
 def release_notes(app: Shell, args: list[str]):
-    """Show release notes"""
+    """显示发行说明"""
     text = format_release_notes(CHANGELOG, include_lib_changes=False)
     with console.pager(styles=True):
-        console.print(Panel.fit(text, border_style="wheat4", title="Release Notes"))
+        console.print(Panel.fit(text, border_style="wheat4", title="发行说明"))
 
 
 @meta_command
 def feedback(app: Shell, args: list[str]):
-    """Submit feedback to make Kimi CLI better"""
+    """提交反馈以帮助 Kimi CLI 变得更好"""
 
     ISSUE_URL = "https://github.com/MoonshotAI/kimi-cli/issues"
     if webbrowser.open(ISSUE_URL):
         return
-    console.print(f"Please submit feedback at [underline]{ISSUE_URL}[/underline].")
+    console.print(f"请通过以下地址提交反馈: [underline]{ISSUE_URL}[/underline].")
 
 
 @meta_command(kimi_soul_only=True)
 async def init(app: Shell, args: list[str]):
-    """Analyze the codebase and generate an `AGENTS.md` file"""
+    """分析代码库并生成一个 `AGENTS.md` 文件"""
     assert isinstance(app.soul, KimiSoul)
 
     soul_bak = app.soul
     with tempfile.TemporaryDirectory() as temp_dir:
-        logger.info("Running `/init`")
-        console.print("Analyzing the codebase...")
+        logger.info("正在运行 `/init`")
+        console.print("正在分析代码库...")
         tmp_context = Context(file_backend=Path(temp_dir) / "context.jsonl")
         app.soul = KimiSoul(soul_bak._agent, context=tmp_context)
         ok = await app._run_soul_command(prompts.INIT, thinking=False)
 
         if ok:
             console.print(
-                "Codebase analyzed successfully! "
-                "An [underline]AGENTS.md[/underline] file has been created."
+                "代码库分析成功！"
+                "已创建 [underline]AGENTS.md[/underline] 文件。"
             )
         else:
-            console.print("[red]Failed to analyze the codebase.[/red]")
+            console.print("[red]代码库分析失败。[/red]")
 
     app.soul = soul_bak
     agents_md = load_agents_md(soul_bak._runtime.builtin_args.KIMI_WORK_DIR)
     system_message = system(
-        "The user just ran `/init` meta command. "
-        "The system has analyzed the codebase and generated an `AGENTS.md` file. "
-        f"Latest AGENTS.md file content:\n{agents_md}"
+        "用户刚刚运行了 /init 元命令。"
+        "系统已经分析了代码库并生成了一个 `AGENTS.md` 文件。"
+        f"最新的 AGENTS.md 文件内容如下：\n{agents_md}"
     )
     await app.soul._context.append_message(Message(role="user", content=[system_message]))
 
 
 @meta_command(aliases=["reset"], kimi_soul_only=True)
 async def clear(app: Shell, args: list[str]):
-    """Clear the context"""
+    """清空上下文"""
     assert isinstance(app.soul, KimiSoul)
 
     if app.soul._context.n_checkpoints == 0:
@@ -246,30 +246,31 @@ async def clear(app: Shell, args: list[str]):
 
 @meta_command(kimi_soul_only=True)
 async def compact(app: Shell, args: list[str]):
-    """Compact the context"""
+    """压缩上下文"""
     assert isinstance(app.soul, KimiSoul)
 
     if app.soul._context.n_checkpoints == 0:
-        console.print("[yellow]Context is empty.[/yellow]")
+        console.print("[yellow]上下文是空的。[/yellow]")
         return
 
-    logger.info("Running `/compact`")
-    with console.status("[cyan]Compacting...[/cyan]"):
+    logger.info("正在运行 `/compact`")
+    with console.status("[cyan]正在压缩...[/cyan]"):
         await app.soul.compact_context()
-    console.print("[green]✓[/green] Context has been compacted.")
+    console.print("[green]✓[/green] 上下文已压缩。")
 
 
 @meta_command(kimi_soul_only=True)
 async def yolo(app: Shell, args: list[str]):
-    """Enable YOLO mode (auto approve all actions)"""
+    """启用 YOLO 模式（自动批准所有操作）"""
     assert isinstance(app.soul, KimiSoul)
 
     app.soul._runtime.approval.set_yolo(True)
-    console.print("[green]✓[/green] Life is short, use YOLO!")
+    console.print("[green]✓[/green] 人生苦短，YOLO 当先！")
 
 
 from . import (  # noqa: E402
     debug,  # noqa: F401
+    mcp_info,  # noqa: F401
     setup,  # noqa: F401
     update,  # noqa: F401
 )

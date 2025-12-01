@@ -1,5 +1,5 @@
-Write content to a file.
+将内容写入文件。
 
-**Tips:**
-- When `mode` is not specified, it defaults to `overwrite`. Always write with caution.
-- When the content to write is too long (e.g. > 100 lines), use this tool multiple times instead of a single call. Use `overwrite` mode at the first time, then use `append` mode after the first write.
+**提示：**
+- 当未指定 `mode` 时，默认为 `overwrite`（覆盖）。请务必谨慎写入。
+- 当要写入的内容过长（例如超过 100 行）时，请多次使用此工具而不是单次调用。第一次使用 `overwrite` 模式，之后使用 `append` 模式。

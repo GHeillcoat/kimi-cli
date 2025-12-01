@@ -12,7 +12,7 @@ from kimi_cli.constant import VERSION
 
 
 class Reload(Exception):
-    """Reload configuration."""
+    """重新加载配置。"""
 
     pass
 
@@ -20,7 +20,7 @@ class Reload(Exception):
 cli = typer.Typer(
     add_completion=False,
     context_settings={"help_option_names": ["-h", "--help"]},
-    help="Kimi, your next CLI agent.",
+    help="Kimi，你的下一代命令行智能体。",
 )
 
 UIMode = Literal["shell", "print", "acp", "wire"]
@@ -30,7 +30,7 @@ OutputFormat = Literal["text", "stream-json"]
 
 def _version_callback(value: bool) -> None:
     if value:
-        typer.echo(f"kimi, version {VERSION}")
+        typer.echo(f"Kimi，版本 {VERSION}")
         raise typer.Exit()
 
 
@@ -41,7 +41,7 @@ def kimi(
         typer.Option(
             "--version",
             "-V",
-            help="Show version and exit.",
+            help="显示版本信息并退出。",
             callback=_version_callback,
             is_eager=True,
         ),
@@ -50,14 +50,14 @@ def kimi(
         bool,
         typer.Option(
             "--verbose",
-            help="Print verbose information. Default: no.",
+            help="打印详细信息。默认：否。",
         ),
     ] = False,
     debug: Annotated[
         bool,
         typer.Option(
             "--debug",
-            help="Log debug information. Default: no.",
+            help="记录调试信息。默认：否。",
         ),
     ] = False,
     agent_file: Annotated[
@@ -68,7 +68,7 @@ def kimi(
             file_okay=True,
             dir_okay=False,
             readable=True,
-            help="Custom agent specification file. Default: builtin default agent.",
+            help="自定义智能体规约文件。默认：使用内置的默认智能体。",
         ),
     ] = None,
     model_name: Annotated[
@@ -76,7 +76,7 @@ def kimi(
         typer.Option(
             "--model",
             "-m",
-            help="LLM model to use. Default: default model set in config file.",
+            help="要使用的LLM模型。默认：配置文件中设置的默认模型。",
         ),
     ] = None,
     local_work_dir: Annotated[
@@ -89,7 +89,7 @@ def kimi(
             dir_okay=True,
             readable=True,
             writable=True,
-            help="Working directory for the agent. Default: current directory.",
+            help="智能体的工作目录。默认：当前目录。",
         ),
     ] = None,
     continue_: Annotated[
@@ -97,7 +97,7 @@ def kimi(
         typer.Option(
             "--continue",
             "-C",
-            help="Continue the previous session for the working directory. Default: no.",
+            help="继续此工作目录的上一个会话。默认：否。",
         ),
     ] = False,
     command: Annotated[
@@ -107,48 +107,42 @@ def kimi(
             "-c",
             "--query",
             "-q",
-            help="User query to the agent. Default: prompt interactively.",
+            help="向智能体提出的用户查询。默认：交互式提示。",
         ),
     ] = None,
     print_mode: Annotated[
         bool,
         typer.Option(
             "--print",
-            help=(
-                "Run in print mode (non-interactive). Note: print mode implicitly adds `--yolo`."
-            ),
+            help="以打印模式（非交互式）运行。注意：打印模式会隐式启用 --yolo。",
         ),
     ] = False,
     acp_mode: Annotated[
         bool,
         typer.Option(
             "--acp",
-            help="Run as ACP server.",
+            help="作为 ACP 服务器运行。",
         ),
     ] = False,
     wire_mode: Annotated[
         bool,
         typer.Option(
             "--wire",
-            help="Run as Wire server (experimental).",
+            help="作为 Wire 服务器运行 (实验性功能)。",
         ),
     ] = False,
     input_format: Annotated[
         InputFormat | None,
         typer.Option(
             "--input-format",
-            help=(
-                "Input format to use. Must be used with `--print` "
-                "and the input must be piped in via stdin. "
-                "Default: text."
-            ),
+            help="要使用的输入格式。必须与 --print 一起使用，且输入必须通过 stdin 管道传入。默认：text。",
         ),
     ] = None,
     output_format: Annotated[
         OutputFormat | None,
         typer.Option(
             "--output-format",
-            help="Output format to use. Must be used with `--print`. Default: text.",
+            help="要使用的输出格式。必须与 --print 一起使用。默认：text。",
         ),
     ] = None,
     mcp_config_file: Annotated[
@@ -159,20 +153,14 @@ def kimi(
             file_okay=True,
             dir_okay=False,
             readable=True,
-            help=(
-                "MCP config file to load. Add this option multiple times to specify multiple MCP "
-                "configs. Default: none."
-            ),
+            help="要加载的 MCP 配置文件。可多次使用此选项以指定多个 MCP 配置。默认：无。",
         ),
     ] = None,
     mcp_config: Annotated[
         list[str] | None,
         typer.Option(
             "--mcp-config",
-            help=(
-                "MCP config JSON to load. Add this option multiple times to specify multiple MCP "
-                "configs. Default: none."
-            ),
+            help="要加载的 MCP 配置 JSON。可多次使用此选项以指定多个 MCP 配置。默认：无。",
         ),
     ] = None,
     yolo: Annotated[
@@ -182,19 +170,19 @@ def kimi(
             "--yes",
             "-y",
             "--auto-approve",
-            help="Automatically approve all actions. Default: no.",
+            help="自动批准所有操作。默认：否。",
         ),
     ] = False,
     thinking: Annotated[
         bool | None,
         typer.Option(
             "--thinking",
-            help="Enable thinking mode if supported. Default: same as last time.",
+            help="如果支持，则启用思考模式。默认：与上次设置相同。",
         ),
     ] = None,
 ):
-    """Kimi, your next CLI agent."""
-    del version  # handled in the callback
+    """Kimi，你的下一代命令行智能体。"""
+    del version  # 已在回调中处理
 
     from kaos.path import KaosPath
     from kimi_cli.app import KimiCLI, enable_logging
@@ -212,7 +200,7 @@ def kimi(
     active_specials = [flag for flag, active in special_flags.items() if active]
     if len(active_specials) > 1:
         raise typer.BadParameter(
-            f"Cannot combine {', '.join(active_specials)}.",
+            f"无法合并使用 {', '.join(active_specials)}。",
             param_hint=active_specials[0],
         )
 
@@ -227,16 +215,16 @@ def kimi(
     if command is not None:
         command = command.strip()
         if not command:
-            raise typer.BadParameter("Command cannot be empty", param_hint="--command")
+            raise typer.BadParameter("命令不能为空", param_hint="--command")
 
     if input_format is not None and ui != "print":
         raise typer.BadParameter(
-            "Input format is only supported for print UI",
+            "输入格式仅在打印用户界面（print UI）中受支持",
             param_hint="--input-format",
         )
     if output_format is not None and ui != "print":
         raise typer.BadParameter(
-            "Output format is only supported for print UI",
+            "输出格式仅在打印用户界面（print UI）中受支持",
             param_hint="--output-format",
         )
 
@@ -246,12 +234,12 @@ def kimi(
     try:
         mcp_configs = [json.loads(conf.read_text(encoding="utf-8")) for conf in file_configs]
     except json.JSONDecodeError as e:
-        raise typer.BadParameter(f"Invalid JSON: {e}", param_hint="--mcp-config-file") from e
+        raise typer.BadParameter(f"无效的 JSON: {e}", param_hint="--mcp-config-file") from e
 
     try:
         mcp_configs += [json.loads(conf) for conf in raw_mcp_config]
     except json.JSONDecodeError as e:
-        raise typer.BadParameter(f"Invalid JSON: {e}", param_hint="--mcp-config") from e
+        raise typer.BadParameter(f"无效的 JSON: {e}", param_hint="--mcp-config") from e
 
     async def _run() -> bool:
         work_dir = (
@@ -262,14 +250,14 @@ def kimi(
             session = await Session.continue_(work_dir)
             if session is None:
                 raise typer.BadParameter(
-                    "No previous session found for the working directory",
+                    "在当前工作目录中未找到先前的会话",
                     param_hint="--continue",
                 )
-            logger.info("Continuing previous session: {session_id}", session_id=session.id)
+            logger.info("继续上一个会话: {session_id}", session_id=session.id)
         else:
             session = await Session.create(work_dir)
-            logger.info("Created new session: {session_id}", session_id=session.id)
-        logger.debug("Context file: {context_file}", context_file=session.context_file)
+            logger.info("已创建新会话: {session_id}", session_id=session.id)
+        logger.debug("上下文文件: {context_file}", context_file=session.context_file)
 
         if thinking is None:
             metadata = load_metadata()
@@ -279,7 +267,7 @@ def kimi(
 
         instance = await KimiCLI.create(
             session,
-            yolo=yolo or (ui == "print"),  # print mode implies yolo
+            yolo=yolo or (ui == "print"),  # 打印模式意味着自动批准（yolo）
             mcp_configs=mcp_configs,
             model_name=model_name,
             thinking=thinking_mode,
@@ -296,31 +284,31 @@ def kimi(
                 )
             case "acp":
                 if command is not None:
-                    logger.warning("ACP server ignores command argument")
+                    logger.warning("ACP 服务器忽略 command 参数")
                 await instance.run_acp()
                 succeeded = True
             case "wire":
                 if command is not None:
-                    logger.warning("Wire server ignores command argument")
+                    logger.warning("Wire 服务器忽略 command 参数")
                 await instance.run_wire_stdio()
                 succeeded = True
 
         if succeeded:
             metadata = load_metadata()
 
-            # Update work_dir metadata with last session
+            # 使用上一个会话更新 work_dir 元数据
             work_dir_meta = metadata.get_work_dir_meta(session.work_dir)
 
             if work_dir_meta is None:
                 logger.warning(
-                    "Work dir metadata missing when marking last session, recreating: {work_dir}",
+                    "标记上一个会话时缺少工作目录元数据，正在重新创建: {work_dir}",
                     work_dir=session.work_dir,
                 )
                 work_dir_meta = metadata.new_work_dir_meta(session.work_dir)
 
             work_dir_meta.last_session_id = session.id
 
-            # Update thinking mode
+            # 更新思考模式
             metadata.thinking = instance.soul.thinking
 
             save_metadata(metadata)

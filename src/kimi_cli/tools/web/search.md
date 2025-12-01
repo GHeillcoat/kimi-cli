@@ -1,1 +1,1 @@
-WebSearch tool allows you to search on the internet to get latest information, including news, documents, release notes, blog posts, papers, etc.
+WebSearch 工具允许您在互联网上搜索以获取最新信息，包括新闻、文档、发布说明、博客文章、论文等。

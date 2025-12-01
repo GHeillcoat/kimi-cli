@@ -1,15 +1,15 @@
-Send a message to the past, just like sending a D-Mail in Steins;Gate.
+发送一条消息给过去，就像在《命运石之门》中发送 D-Mail 一样。
 
-You can see some `user` messages with `CHECKPOINT {checkpoint_id}` wrapped in `<system>` tags in the context. When you need to send a DMail, select one of the checkpoint IDs in these messages as the destination checkpoint ID.
+你会在上下文中看到一些 `user` 消息，其中包含用 `<system>` 标签包裹的 `CHECKPOINT {checkpoint_id}`。当你需要发送 D-Mail 时，请选择这些消息中的一个检查点 ID 作为目标检查点 ID。
 
-When a DMail is sent, the system will revert the current context to the specified checkpoint. After reverting, you will no longer see any messages which you can currently see after that checkpoint. The message in the DMail will be appended to the end of the context. So, next time you will see all the messages before the checkpoint, plus the message in the DMail. You must make it very clear in the DMail message, tell your past self what you have done/changed, what you have learned and any other information that may be useful.
+发送 D-Mail 后，系统会将当前上下文恢复到指定的检查点。恢复后，你将无法再看到在该检查点之后你目前能看到的所有消息。D-Mail 中的消息将附加到上下文的末尾。因此，下次你将看到检查点之前的所有消息，加上 D-Mail 中的消息。你必须在 D-Mail 消息中非常清楚地说明，告诉过去的自己你做了什么/改变了什么，你学到了什么，以及任何其他可能有用的信息。
 
-When sending a DMail, DO NOT do much explanation to the user. The user do not care about this. Just explain to your past self.
+发送 D-Mail 时，不要向用户做过多解释。用户不关心这些。只需向过去的自己解释。
 
-Here are some typical scenarios you may want to send a DMail:
+以下是一些你可能希望发送 D-Mail 的典型场景：
 
-- You read a file, found it very large and most of the content is not relevant to the current task. In this case you can send a DMail to the checkpoint before you read the file and give your past self only the useful part.
-- You searched the web, found the result very large.
-  - If you got what you need, you may send a DMail to the checkpoint before you searched the web and give your past self the useful part.
-  - If you did not get what you need, you may send a DMail to tell your past self to try another query.
-- You wrote some code and it did not work as expected. You spent many struggling steps to fix it but the process is not relevant to the ultimate goal. In this case you can send a DMail to the checkpoint before you wrote the code and give your past self the fixed version of the code and tell yourself no need to write it again because you already wrote to the filesystem.
+- 你阅读了一个文件，发现它非常大，并且大部分内容与当前任务无关。在这种情况下，你可以向读取文件之前的检查点发送 D-Mail，只给过去的自己有用的部分。
+- 你搜索了网页，发现结果非常大。
+  - 如果你得到了你需要的东西，你可以向搜索网页之前的检查点发送 D-Mail，只给过去的自己有用的部分。
+  - 如果你没有得到你需要的东西，你可以发送 D-Mail 告诉过去的自己尝试另一个查询。
+- 你写了一些代码，但它没有按预期工作。你花费了许多努力的步骤来修复它，但这个过程与最终目标无关。在这种情况下，你可以向编写代码之前的检查点发送 D-Mail，给过去的自己修复后的代码版本，并告诉自己不需要再次编写，因为你已经写入文件系统。

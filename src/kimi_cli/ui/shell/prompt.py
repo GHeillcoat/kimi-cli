@@ -56,21 +56,21 @@ PROMPT_SYMBOL_THINKING = "💫"
 
 
 class MetaCommandCompleter(Completer):
-    """A completer that:
-    - Shows one line per meta command in the form: "/name (alias1, alias2)"
-    - Matches by primary name or any alias while inserting the canonical "/name"
-    - Only activates when the current token starts with '/'
+    """一个补全器，它：
+    - 为每个元命令显示一行，格式为：“/name (alias1, alias2)”
+    - 通过主名称或任何别名进行匹配，同时插入规范的“/name”
+    - 仅在当前令牌以“/”开头时激活
     """
 
     @override
     def get_completions(self, document, complete_event):
         text = document.text_before_cursor
 
-        # Only autocomplete when the input buffer has no other content.
+        # 仅当输入缓冲区没有其他内容时才进行自动补全。
         if document.text_after_cursor.strip():
             return
 
-        # Only consider the last token (allowing future arguments after a space)
+        # 只考虑最后一个 token（允许在空格后有未来的参数）
         last_space = text.rfind(" ")
         token = text[last_space + 1 :]
         prefix = text[: last_space + 1] if last_space != -1 else ""
@@ -95,7 +95,7 @@ class MetaCommandCompleter(Completer):
 
 
 class LocalFileMentionCompleter(Completer):
-    """Offer fuzzy `@` path completion by indexing workspace files."""
+    """通过索引工作区文件来提供模糊的 `@` 路径补全。"""
 
     _FRAGMENT_PATTERN = re.compile(r"[^\s@]+")
     _TRIGGER_GUARDS = frozenset((".", "-", "_", "`", "'", '"', ":", "@", "#", "~"))
@@ -245,7 +245,7 @@ class LocalFileMentionCompleter(Completer):
             for current_root, dirs, files in os.walk(self._root):
                 relative_root = Path(current_root).relative_to(self._root)
 
-                # Prevent descending into ignored directories.
+                # 防止进入被忽略的目录。
                 dirs[:] = sorted(d for d in dirs if not self._is_ignored(d))
 
                 if relative_root.parts and any(
@@ -318,10 +318,10 @@ class LocalFileMentionCompleter(Completer):
         mention_doc = Document(text=fragment, cursor_position=len(fragment))
         self._fragment_hint = fragment
         try:
-            # First, ask the fuzzy completer for candidates.
+            # 首先，向模糊补全器请求候选词。
             candidates = list(self._fuzzy.get_completions(mention_doc, complete_event))
 
-            # re-rank: prefer basename matches
+            # 重新排序：偏好基本名称匹配
             frag_lower = fragment.lower()
 
             def _rank(c: Completion) -> tuple:
@@ -333,7 +333,7 @@ class LocalFileMentionCompleter(Completer):
                     cat = 1
                 else:
                     cat = 2
-                # preserve original FuzzyCompleter's order in the same category
+                # 在同一类别中保留原始 FuzzyCompleter 的顺序
                 return (cat,)
 
             candidates.sort(key=_rank)
@@ -361,7 +361,7 @@ def _load_history_entries(history_file: Path) -> list[_HistoryEntry]:
                     record = json.loads(line)
                 except json.JSONDecodeError:
                     logger.warning(
-                        "Failed to parse user history line; skipping: {line}",
+                        "解析用户历史记录失败；正在跳过: {line}",
                         line=line,
                     )
                     continue
@@ -370,13 +370,13 @@ def _load_history_entries(history_file: Path) -> list[_HistoryEntry]:
                     entries.append(entry)
                 except ValidationError:
                     logger.warning(
-                        "Failed to validate user history entry; skipping: {line}",
+                        "验证用户历史记录条目失败；正在跳过: {line}",
                         line=line,
                     )
                     continue
     except OSError as exc:
         logger.warning(
-            "Failed to load user history file: {file} ({error})",
+            "加载用户历史文件失败: {file} ({error})",
             file=history_file,
             error=exc,
         )
@@ -399,9 +399,9 @@ class UserInput(BaseModel):
     mode: PromptMode
     thinking: bool
     command: str
-    """The plain text representation of the user input."""
+    """用户输入的纯文本表示。"""
     content: list[ContentPart]
-    """The rich content parts."""
+    """富文本内容部分。"""
 
     def __str__(self) -> str:
         return self.command
@@ -416,13 +416,13 @@ _REFRESH_INTERVAL = 1.0
 @dataclass(slots=True)
 class _ToastEntry:
     topic: str | None
-    """There can be only one toast of each non-None topic in the queue."""
+    """每个非 None 的主题在队列中只能有一个 toast。"""
     message: str
     duration: float
 
 
 _toast_queue = deque[_ToastEntry]()
-"""The queue of toasts to show, including the one currently being shown (the first one)."""
+"""要显示的 toast 队列，包括当前正在显示的（第一个）。"""
 
 
 def toast(
@@ -434,7 +434,7 @@ def toast(
     duration = max(duration, _REFRESH_INTERVAL)
     entry = _ToastEntry(topic=topic, message=message, duration=duration)
     if topic is not None:
-        # Remove existing toasts with the same topic
+        # 移除具有相同主题的现有 toast
         for existing in list(_toast_queue):
             if existing.topic == topic:
                 _toast_queue.remove(existing)
@@ -452,7 +452,7 @@ def _current_toast() -> _ToastEntry | None:
 
 def _toast_thinking(thinking: bool) -> None:
     toast(
-        f"thinking {'on' if thinking else 'off'}, tab to toggle",
+        f"思考模式已{'开启' if thinking else '关闭'}，按 Tab 切换",
         duration=3.0,
         topic="thinking",
         immediate=True,
@@ -482,7 +482,7 @@ class CustomPromptSession:
         self._mode: PromptMode = PromptMode.AGENT
         self._thinking = initial_thinking
         self._attachment_parts: dict[str, ContentPart] = {}
-        """Mapping from attachment id to ContentPart."""
+        """从附件 id 到 ContentPart 的映射。"""
 
         history_entries = _load_history_entries(self._history_file)
         history = InMemoryHistory()
@@ -490,10 +490,10 @@ class CustomPromptSession:
             history.append_string(entry.content)
 
         if history_entries:
-            # for consecutive deduplication
+            # 用于连续去重
             self._last_history_content = history_entries[-1].content
 
-        # Build completers
+        # 构建补全器
         self._agent_mode_completer = merge_completers(
             [
                 MetaCommandCompleter(),
@@ -526,7 +526,7 @@ class CustomPromptSession:
             # Redraw UI
             event.app.invalidate()
 
-        shortcut_hints.append("ctrl-x: switch mode")
+        shortcut_hints.append("Ctrl-X: 切换模式")
 
         @_kb.add("escape", "enter", eager=True)
         @_kb.add("c-j", eager=True)
@@ -534,7 +534,7 @@ class CustomPromptSession:
             """Insert a newline when Alt-Enter or Ctrl-J is pressed."""
             event.current_buffer.insert_text("\n")
 
-        shortcut_hints.append("ctrl-j: newline")
+        shortcut_hints.append("Ctrl-J: 换行")
 
         if is_clipboard_available():
 
@@ -545,7 +545,7 @@ class CustomPromptSession:
                 clipboard_data = event.app.clipboard.get_data()
                 event.current_buffer.paste_clipboard_data(clipboard_data)
 
-            shortcut_hints.append("ctrl-v: paste")
+            shortcut_hints.append("Ctrl-V: 粘贴")
             clipboard = PyperclipClipboard()
         else:
             clipboard = None
@@ -561,7 +561,7 @@ class CustomPromptSession:
             """Toggle thinking mode when Tab is pressed and no completions are shown."""
             if "thinking" not in self._model_capabilities:
                 console.print(
-                    "[yellow]Thinking mode is not supported by the selected LLM model[/yellow]"
+                    "[yellow]当前选择的 LLM 模型不支持思考模式[/yellow]"
                 )
                 return
             self._thinking = not self._thinking
@@ -627,7 +627,7 @@ class CustomPromptSession:
                     try:
                         asyncio.get_running_loop()
                     except RuntimeError:
-                        logger.warning("No running loop found, exiting status refresh task")
+                        logger.warning("未找到正在运行的事件循环，正在退出状态刷新任务")
                         self._status_refresh_task = None
                         break
 
@@ -664,7 +664,7 @@ class CustomPromptSession:
             return False
 
         if "image_in" not in self._model_capabilities:
-            console.print("[yellow]Image input is not supported by the selected LLM model[/yellow]")
+            console.print("[yellow]当前选择的 LLM 模型不支持图像输入[/yellow]")
             return False
 
         attachment_id = f"{random_string(8)}.png"
@@ -678,7 +678,7 @@ class CustomPromptSession:
         )
         self._attachment_parts[attachment_id] = image_part
         logger.debug(
-            "Pasted image from clipboard: {attachment_id}, {image_size}",
+            "已从剪贴板粘贴图像: {attachment_id}, {image_size}",
             attachment_id=attachment_id,
             image_size=image.size,
         )
@@ -707,7 +707,7 @@ class CustomPromptSession:
                 content.append(part)
             else:
                 logger.warning(
-                    "Attachment placeholder found but no matching attachment part: {placeholder}",
+                    "找到附件占位符，但没有匹配的附件部分: {placeholder}",
                     placeholder=match.group(0),
                 )
                 content.append(TextPart(text=match.group(0)))
@@ -739,7 +739,7 @@ class CustomPromptSession:
             self._last_history_content = entry.content
         except OSError as exc:
             logger.warning(
-                "Failed to append user history entry: {file} ({error})",
+                "追加用户历史记录失败: {file} ({error})",
                 file=self._history_file,
                 error=exc,
             )
@@ -757,7 +757,7 @@ class CustomPromptSession:
 
         mode = str(self._mode).lower()
         if self._mode == PromptMode.AGENT and self._thinking:
-            mode += " (thinking)"
+            mode += " (思考中)"
         fragments.extend([("", f"{mode}"), ("", " " * 2)])
         columns -= len(mode) + 2
 
@@ -774,7 +774,7 @@ class CustomPromptSession:
         else:
             shortcuts = [
                 *self._shortcut_hints,
-                "ctrl-d: exit",
+                "Ctrl-D: 退出",
             ]
             for shortcut in shortcuts:
                 if columns - len(status_text) > len(shortcut) + 2:
@@ -792,4 +792,4 @@ class CustomPromptSession:
     @staticmethod
     def _format_status(status: StatusSnapshot) -> str:
         bounded = max(0.0, min(status.context_usage, 1.0))
-        return f"context: {bounded:.1%}"
+        return f"上下文: {bounded:.1%}"

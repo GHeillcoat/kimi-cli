@@ -1,17 +1,17 @@
 <!--
-Thank you for your contribution to Kimi CLI!
-Please make sure you already discussed the feature or bugfix you are proposing in an issue with the maintainers.
-Please understand that if you have not gotten confirmation from the maintainers, your pull request may be closed or ignored without further review due to limited bandwidth.
+感谢您对 Kimi CLI 的贡献！
+请确保您已在 issue 中与维护者讨论了您提议的功能或错误修复。
+请理解，如果您未获得维护者的确认，您的拉取请求可能会因带宽有限而被关闭或忽略，恕不另行审查。
 
-See https://github.com/MoonshotAI/kimi-cli/blob/main/CONTRIBUTING.md for more.
+更多信息请参阅 https://github.com/MoonshotAI/kimi-cli/blob/main/CONTRIBUTING.md。
 -->
 
-## Related Issue
+## 相关 Issue
 
-<!-- Please link to the issue here. -->
+<!-- 请在此处链接到 issue。 -->
 
-Resolve #(issue_number)
+解决 #(issue_number)
 
-## Description
+## 描述
 
-<!-- Please describe your changes in detail. -->
+<!-- 请详细描述您的更改。 -->

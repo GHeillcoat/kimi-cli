@@ -13,16 +13,16 @@ from kimi_cli.utils.logging import logger
 
 
 class LLMProvider(BaseModel):
-    """LLM provider configuration."""
+    """LLM 提供商配置。"""
 
     type: ProviderType
-    """Provider type"""
+    """提供商类型"""
     base_url: str
-    """API base URL"""
+    """API 基础 URL"""
     api_key: SecretStr
-    """API key"""
+    """API 密钥"""
     custom_headers: dict[str, str] | None = None
-    """Custom headers to include in API requests"""
+    """API 请求中包含的自定义头部"""
 
     @field_serializer("api_key", when_used="json")
     def dump_secret(self, v: SecretStr):
@@ -30,36 +30,36 @@ class LLMProvider(BaseModel):
 
 
 class LLMModel(BaseModel):
-    """LLM model configuration."""
+    """LLM 模型配置。"""
 
     provider: str
-    """Provider name"""
+    """提供商名称"""
     model: str
-    """Model name"""
+    """模型名称"""
     max_context_size: int
-    """Maximum context size (unit: tokens)"""
+    """最大上下文大小（单位：token）"""
     capabilities: set[ModelCapability] | None = None
-    """Model capabilities"""
+    """模型能力"""
 
 
 class LoopControl(BaseModel):
-    """Agent loop control configuration."""
+    """智能体循环控制配置。"""
 
     max_steps_per_run: int = 100
-    """Maximum number of steps in one run"""
+    """单次运行的最大步数"""
     max_retries_per_step: int = 3
-    """Maximum number of retries in one step"""
+    """单步中的最大重试次数"""
 
 
 class MoonshotSearchConfig(BaseModel):
-    """Moonshot Search configuration."""
+    """Moonshot Search 配置。"""
 
     base_url: str
-    """Base URL for Moonshot Search service."""
+    """Moonshot Search 服务的基准 URL。"""
     api_key: SecretStr
-    """API key for Moonshot Search service."""
+    """Moonshot Search 服务的 API 密钥。"""
     custom_headers: dict[str, str] | None = None
-    """Custom headers to include in API requests."""
+    """API 请求中包含的自定义头部。"""
 
     @field_serializer("api_key", when_used="json")
     def dump_secret(self, v: SecretStr):
@@ -67,14 +67,14 @@ class MoonshotSearchConfig(BaseModel):
 
 
 class MoonshotFetchConfig(BaseModel):
-    """Moonshot Fetch configuration."""
+    """Moonshot Fetch 配置。"""
 
     base_url: str
-    """Base URL for Moonshot Fetch service."""
+    """Moonshot Fetch 服务的基准 URL。"""
     api_key: SecretStr
-    """API key for Moonshot Fetch service."""
+    """Moonshot Fetch 服务的 API 密钥。"""
     custom_headers: dict[str, str] | None = None
-    """Custom headers to include in API requests."""
+    """API 请求中包含的自定义头部。"""
 
     @field_serializer("api_key", when_used="json")
     def dump_secret(self, v: SecretStr):
@@ -82,42 +82,42 @@ class MoonshotFetchConfig(BaseModel):
 
 
 class Services(BaseModel):
-    """Services configuration."""
+    """服务配置。"""
 
     moonshot_search: MoonshotSearchConfig | None = None
-    """Moonshot Search configuration."""
+    """Moonshot 搜索配置。"""
     moonshot_fetch: MoonshotFetchConfig | None = None
-    """Moonshot Fetch configuration."""
+    """Moonshot Fetch 配置。"""
 
 
 class Config(BaseModel):
-    """Main configuration structure."""
+    """主配置结构。"""
 
-    default_model: str = Field(default="", description="Default model to use")
-    models: dict[str, LLMModel] = Field(default_factory=dict, description="List of LLM models")
+    default_model: str = Field(default="", description="要使用的默认模型")
+    models: dict[str, LLMModel] = Field(default_factory=dict, description="LLM 模型列表")
     providers: dict[str, LLMProvider] = Field(
-        default_factory=dict, description="List of LLM providers"
+        default_factory=dict, description="LLM 提供商列表"
     )
-    loop_control: LoopControl = Field(default_factory=LoopControl, description="Agent loop control")
-    services: Services = Field(default_factory=Services, description="Services configuration")
+    loop_control: LoopControl = Field(default_factory=LoopControl, description="智能体循环控制")
+    services: Services = Field(default_factory=Services, description="服务配置")
 
     @model_validator(mode="after")
     def validate_model(self) -> Self:
         if self.default_model and self.default_model not in self.models:
-            raise ValueError(f"Default model {self.default_model} not found in models")
+            raise ValueError(f"默认模型 {self.default_model} 在模型中未找到")
         for model in self.models.values():
             if model.provider not in self.providers:
-                raise ValueError(f"Provider {model.provider} not found in providers")
+                raise ValueError(f"提供商 {model.provider} 在提供商中未找到")
         return self
 
 
 def get_config_file() -> Path:
-    """Get the configuration file path."""
+    """获取配置文件路径。"""
     return get_share_dir() / "config.json"
 
 
 def get_default_config() -> Config:
-    """Get the default configuration."""
+    """获取默认配置。"""
     return Config(
         default_model="",
         models={},
@@ -128,24 +128,24 @@ def get_default_config() -> Config:
 
 def load_config(config_file: Path | None = None) -> Config:
     """
-    Load configuration from config file.
-    If the config file does not exist, create it with default configuration.
+    从配置文件加载配置。
+    如果配置文件不存在，则使用默认配置创建。
 
     Args:
-        config_file (Path | None): Path to the configuration file. If None, use default path.
+        config_file (Path | None): 配置文件的路径。如果为 None，则使用默认路径。
 
     Returns:
-        Validated Config object.
+        已验证的 Config 对象。
 
     Raises:
-        ConfigError: If the configuration file is invalid.
+        ConfigError: 如果配置文件无效。
     """
     config_file = config_file or get_config_file()
-    logger.debug("Loading config from file: {file}", file=config_file)
+    logger.debug("正在从文件加载配置: {file}", file=config_file)
 
     if not config_file.exists():
         config = get_default_config()
-        logger.debug("No config file found, creating default config: {config}", config=config)
+        logger.debug("未找到配置文件，正在创建默认配置: {config}", config=config)
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(config.model_dump_json(indent=2, exclude_none=True))
         return config
@@ -155,20 +155,20 @@ def load_config(config_file: Path | None = None) -> Config:
             data = json.load(f)
         return Config(**data)
     except json.JSONDecodeError as e:
-        raise ConfigError(f"Invalid JSON in configuration file: {e}") from e
+        raise ConfigError(f"配置文件中的 JSON 无效: {e}") from e
     except ValidationError as e:
-        raise ConfigError(f"Invalid configuration file: {e}") from e
+        raise ConfigError(f"配置文件无效: {e}") from e
 
 
 def save_config(config: Config, config_file: Path | None = None):
     """
-    Save configuration to config file.
+    将配置保存到配置文件。
 
     Args:
-        config (Config): Config object to save.
-        config_file (Path | None): Path to the configuration file. If None, use default path.
+        config (Config): 要保存的 Config 对象。
+        config_file (Path | None): 配置文件的路径。如果为 None，则使用默认路径。
     """
     config_file = config_file or get_config_file()
-    logger.debug("Saving config to file: {file}", file=config_file)
+    logger.debug("正在将配置保存到文件: {file}", file=config_file)
     with open(config_file, "w", encoding="utf-8") as f:
         f.write(config.model_dump_json(indent=2, exclude_none=True))

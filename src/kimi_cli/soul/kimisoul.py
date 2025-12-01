@@ -53,7 +53,7 @@ if TYPE_CHECKING:
         _: Soul = soul
 
 
-RESERVED_TOKENS = 50_000
+RESERVED_TOKENS = 20_000
 
 
 class KimiSoul:
@@ -248,12 +248,24 @@ class KimiSoul:
             reraise=True,
         )
         async def _kosong_step_with_retry() -> StepResult:
+            # Ensure message content is always text if LLM doesn't support multimode
+            processed_history = []
+            if "image_in" not in self._runtime.llm.capabilities:
+                from kimi_cli.soul.message import message_content_to_text
+                for msg in self._context.history:
+                    if isinstance(msg.content, list):
+                        processed_history.append(msg.model_copy(update={"content": message_content_to_text(msg.content)}))
+                    else:
+                        processed_history.append(msg)
+            else:
+                processed_history = self._context.history
+
             # run an LLM step (may be interrupted)
             return await kosong.step(
                 chat_provider.with_thinking(self._thinking_effort),
                 self._agent.system_prompt,
                 self._agent.toolset,
-                self._context.history,
+                processed_history,
                 on_message_part=wire_send,
                 on_tool_result=wire_send,
             )

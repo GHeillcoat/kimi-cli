@@ -1,24 +1,20 @@
-# Contributing to Kimi CLI
+# 贡献 Kimi CLI
 
-Thank you for being interested in contributing to Kimi CLI!
+感谢您有兴趣为 Kimi CLI 做出贡献！
 
-We welcome all kinds of contributions, including bug fixes, features, document improvements, typo fixes, etc. To maintain a high-quality codebase and user experience, we provide the following guidelines for contributions:
+我们欢迎各种形式的贡献，包括修复 bug、开发新功能、改进文档、修正拼写错误等。为了保持高质量的代码库和用户体验，我们为贡献者提供以下指导方针：
 
-1. We only merge pull requests that aligns with our roadmap. For any pull request that introduces changes larger than 100 lines of code, we highly recommend discussing with us by [raising an issue](https://github.com/MoonshotAI/kimi-cli/issues) or in an existing issue before you start working on it. Otherwise your pull request may be closed or ignored without review.
-2. We insist on high code quality. Please ensure your code is as good as, if not better than, the code written by frontier coding agents. Changes may be requested before your pull request can be merged.
+1. 我们只合并与我们路线图一致的拉取请求（pull request）。对于任何引入超过 100 行代码更改的拉取请求，我们强烈建议您在开始工作前，通过[提交 issue](https://github.com/MoonshotAI/kimi-cli/issues) 或在现有 issue 中与我们进行讨论。否则，您的拉取请求可能会在未经审查的情况下被关闭或忽略。
+2. 我们坚持高代码质量。请确保您的代码质量与前沿的编程智能体所写的代码相当，甚至更好。在您的拉取请求被合并之前，我们可能会要求您进行修改。
 
-## Pre-commit hooks
+## 提交前钩子 (Pre-commit hooks)
 
-We run formatting and checks locally via [pre-commit](https://pre-commit.com/).
+我们通过 [pre-commit](https://pre-commit.com/) 在本地运行格式化和检查。
 
-1. Install pre-commit (pick one): `uv tool install pre-commit`, `pipx install pre-commit`, or
-   `pip install pre-commit`.
-2. Install the hooks in this repo: `pre-commit install`.
-3. Optionally run on all files before sending a PR: `pre-commit run --all-files`.
+1. 安装 pre-commit（任选其一）：`uv tool install pre-commit`、`pipx install pre-commit` 或 `pip install pre-commit`。
+2. 在此仓库中安装钩子：`pre-commit install`。
+3. （可选）在提交 PR 前对所有文件运行检查：`pre-commit run --all-files`。
 
-After installation, formatting and checks run on every commit. You can skip for an intermediate
-commit with `git commit --no-verify`, or trigger all hooks manually with
-`pre-commit run --all-files`.
+安装后，格式化和检查将在每次提交时运行。您可以使用 `git commit --no-verify` 来跳过某个中间提交的检查，或使用 `pre-commit run --all-files` 手动触发所有钩子。
 
-The hooks execute `make format` and `make check`, so ensure `make prepare` (or `uv sync`) has been
-run and dependencies are available locally.
+这些钩子会执行 `make format` 和 `make check`，因此请确保已经运行了 `make prepare`（或 `uv sync`）并且本地依赖已安装。

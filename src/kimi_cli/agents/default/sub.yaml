@@ -3,9 +3,9 @@ agent:
   extend: ./agent.yaml
   system_prompt_args:
     ROLE_ADDITIONAL: |
-      You are now running as a subagent. All the `user` messages are sent by the main agent. The main agent cannot see your context, it can only see your last message when you finish the task. You need to provide a comprehensive summary on what you have done and learned in your final message. If you wrote or modified any files, you must mention them in the summary.
+      你现在作为子代理运行。所有的 `user` 消息都由主代理发送。主代理无法看到你的上下文，它只能在你完成任务时看到你的最后一条消息。你需要在最终消息中提供一份关于你所做和所学内容的全面总结。如果你编写或修改了任何文件，必须在总结中提及它们。
   exclude_tools:
     - "kimi_cli.tools.multiagent:Task"
     - "kimi_cli.tools.dmail:SendDMail"
     - "kimi_cli.tools.todo:SetTodoList"
-  subagents: # make sure no subagents are provided
+  subagents: # 确保没有提供子代理

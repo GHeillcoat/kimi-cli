@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 class LocalKaos:
     """
-    A KAOS implementation that directly interacts with the local filesystem.
+    一个直接与本地文件系统交互的 KAOS 实现。
     """
 
     name: str = "local"
@@ -116,4 +116,4 @@ class LocalKaos:
 
 
 local_kaos = LocalKaos()
-"""The default local KAOS instance."""
+"""默认的本地 KAOS 实例。"""

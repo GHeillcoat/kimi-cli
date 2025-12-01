@@ -15,43 +15,43 @@ type StrOrKaosPath = str | KaosPath
 
 @runtime_checkable
 class Kaos(Protocol):
-    """Kimi Agent Operating System (KAOS) interface."""
+    """Kimi 代理操作系统 (KAOS) 接口。"""
 
     name: str
-    """The name of the KAOS implementation."""
+    """KAOS 实现的名称。"""
 
     def pathclass(self) -> type[PurePath]:
-        """Get the path class used under `KaosPath`."""
+        """获取 `KaosPath` 下使用的路径类。"""
         ...
 
     def gethome(self) -> KaosPath:
-        """Get the home directory path."""
+        """获取主目录路径。"""
         ...
 
     def getcwd(self) -> KaosPath:
-        """Get the current working directory path."""
+        """获取当前工作目录路径。"""
         ...
 
     async def chdir(self, path: StrOrKaosPath) -> None:
-        """Change the current working directory."""
+        """更改当前工作目录。"""
         ...
 
     async def stat(self, path: StrOrKaosPath, *, follow_symlinks: bool = True) -> os.stat_result:
-        """Get the stat result for a path."""
+        """获取路径的 stat 结果。"""
         ...
 
     def iterdir(self, path: StrOrKaosPath) -> AsyncGenerator[KaosPath]:
-        """Iterate over the entries in a directory."""
+        """遍历目录中的条目。"""
         ...
 
     def glob(
         self, path: StrOrKaosPath, pattern: str, *, case_sensitive: bool = True
     ) -> AsyncGenerator[KaosPath]:
-        """Search for files/directories matching a pattern in the given path."""
+        """在给定路径中搜索匹配模式的文件/目录。"""
         ...
 
     async def readbytes(self, path: StrOrKaosPath) -> bytes:
-        """Read the entire file contents as bytes."""
+        """将整个文件内容作为字节读取。"""
         ...
 
     async def readtext(
@@ -61,7 +61,7 @@ class Kaos(Protocol):
         encoding: str = "utf-8",
         errors: Literal["strict", "ignore", "replace"] = "strict",
     ) -> str:
-        """Read the entire file contents as text."""
+        """将整个文件内容作为文本读取。"""
         ...
 
     def readlines(
@@ -71,11 +71,11 @@ class Kaos(Protocol):
         encoding: str = "utf-8",
         errors: Literal["strict", "ignore", "replace"] = "strict",
     ) -> AsyncGenerator[str]:
-        """Iterate over the lines of the file."""
+        """迭代文件的行。"""
         ...
 
     async def writebytes(self, path: StrOrKaosPath, data: bytes) -> int:
-        """Write bytes data to the file."""
+        """将字节数据写入文件。"""
         ...
 
     async def writetext(
@@ -87,32 +87,32 @@ class Kaos(Protocol):
         encoding: str = "utf-8",
         errors: Literal["strict", "ignore", "replace"] = "strict",
     ) -> int:
-        """Write text data to the file, returning the number of characters written."""
+        """将文本数据写入文件，并返回写入的字符数。"""
         ...
 
     async def mkdir(
         self, path: StrOrKaosPath, parents: bool = False, exist_ok: bool = False
     ) -> None:
-        """Create a directory at the given path."""
+        """在给定路径创建目录。"""
         ...
 
 
 def get_current_kaos() -> Kaos:
-    """Get the current KAOS instance."""
+    """获取当前 KAOS 实例。"""
     from kaos._current import current_kaos
 
     return current_kaos.get()
 
 
 def set_current_kaos(kaos: Kaos) -> contextvars.Token[Kaos]:
-    """Set the current KAOS instance."""
+    """设置当前 KAOS 实例。"""
     from kaos._current import current_kaos
 
     return current_kaos.set(kaos)
 
 
 def reset_current_kaos(token: contextvars.Token[Kaos]) -> None:
-    """Reset the current KAOS instance."""
+    """重置当前 KAOS 实例。"""
     from kaos._current import current_kaos
 
     current_kaos.reset(token)

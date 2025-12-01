@@ -1,15 +1,15 @@
-Update the whole todo list.
+更新整个待办事项列表。
 
-Todo list is a simple yet powerful tool to help you get things done. You typically want to use this tool when the given task involves multiple subtasks/milestones, or, multiple tasks are given in a single request. This tool can help you to break down the task and track the progress.
+待办事项列表是一个简单而强大的工具，可以帮助你完成任务。当给定任务涉及多个子任务/里程碑，或者在一个请求中给出多个任务时，你通常会希望使用此工具。此工具可以帮助你分解任务并跟踪进度。
 
-This is the only todo list tool available to you. That said, each time you want to operate on the todo list, you need to update the whole. Make sure to maintain the todo items and their statuses properly.
+这是你唯一可用的待办事项列表工具。也就是说，每次你想操作待办事项列表时，都需要更新整个列表。请确保正确维护待办事项及其状态。
 
-Once you finished a subtask/milestone, remember to update the todo list to reflect the progress. Also, you can give yourself a self-encouragement to keep you motivated.
+完成子任务/里程碑后，请记住更新待办事项列表以反映进度。此外，你可以给自己一些自我鼓励，以保持动力。
 
-Abusing this tool to track too small steps will just waste your time and make your context messy. For example, here are some cases you should not use this tool:
+滥用此工具来跟踪过小的步骤只会浪费你的时间并使你的上下文混乱。例如，以下是一些你不应该使用此工具的情况：
 
-- When the user just simply ask you a question. E.g. "What language and framework is used in the project?", "What is the best practice for x?"
-- When it only takes a few steps/tool calls to complete the task. E.g. "Fix the unit test function 'test_xxx'", "Refactor the function 'xxx' to make it more solid."
-- When the user prompt is very specific and the only thing you need to do is brainlessly following the instructions. E.g. "Replace xxx to yyy in the file zzz", "Create a file xxx with content yyy."
+- 当用户只是简单地问你一个问题时。例如，“项目中使用了哪种语言和框架？”，“x 的最佳实践是什么？”
+- 当任务只需几个步骤/工具调用即可完成时。例如，“修复单元测试函数‘test_xxx’”，“重构函数‘xxx’使其更健壮。”
+- 当用户提示非常具体，而你唯一需要做的就是无脑地按照指示操作时。例如，“将文件 zzz 中的 xxx 替换为 yyy”，“创建一个内容为 yyy 的文件 xxx。”
 
-However, do not get stuck in a rut. Be flexible. Sometimes, you may try to use todo list at first, then realize the task is too simple and you can simply stop using it; or, sometimes, you may realize the task is complex after a few steps and then you can start using todo list to break it down.
+然而，不要墨守成规。要灵活变通。有时，你可能一开始尝试使用待办事项列表，然后意识到任务太简单，你可以简单地停止使用它；或者，有时，你可能在几个步骤后意识到任务很复杂，然后你可以开始使用待办事项列表来分解它。
