@@ -9,6 +9,10 @@
 只写入值得向用户提及的条目。
 -->
 
+## [0.60] - 2025-12-01
+
+- LLM: Fix interleaved thinking for Kimi and OpenAI-compatible providers
+
 ## [0.59] - 2025-11-28
 
 - 核心：将上下文文件位置移至 `.kimi/sessions/{workdir_md5}/{session_id}/context.jsonl`

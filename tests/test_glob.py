@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import platform
+from pathlib import Path
 
 import pytest
+from kaos.path import KaosPath
 from kosong.tooling import ToolError, ToolOk
 
-from kaos.path import KaosPath
 from kimi_cli.tools.file.glob import MAX_MATCHES, Glob, Params
 
 
@@ -165,6 +166,19 @@ async def test_glob_outside_work_directory(glob_tool: Glob):
     """Test glob outside working directory (should fail)."""
     dir = "/tmp/outside" if platform.system() != "Windows" else "C:/tmp/outside"
     result = await glob_tool(Params(pattern="*.py", directory=dir))
+
+    assert isinstance(result, ToolError)
+    assert "outside the working directory" in result.message
+
+
+@pytest.mark.asyncio
+async def test_glob_outside_work_directory_with_prefix(glob_tool: Glob, temp_work_dir: KaosPath):
+    """Paths sharing the work dir prefix but outside should be blocked."""
+    base = Path(str(temp_work_dir))
+    sneaky_dir = base.parent / f"{base.name}-sneaky"
+    sneaky_dir.mkdir(parents=True, exist_ok=True)
+
+    result = await glob_tool(Params(pattern="*.py", directory=str(sneaky_dir)))
 
     assert isinstance(result, ToolError)
     assert "outside the working directory" in result.message

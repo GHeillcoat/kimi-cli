@@ -3,13 +3,13 @@
 from pathlib import Path
 from typing import override
 
+from kaos.path import KaosPath
 from kosong.tooling import CallableTool2, ToolError, ToolOk, ToolReturnValue
 from pydantic import BaseModel, Field
 
-from kaos.path import KaosPath
 from kimi_cli.soul.agent import BuiltinSystemPromptArgs
 from kimi_cli.tools.utils import load_desc
-from kimi_cli.utils.path import list_directory
+from kimi_cli.utils.path import is_within_directory, list_directory
 
 MAX_MATCHES = 1000
 
@@ -64,7 +64,7 @@ class Glob(CallableTool2[Params]):
         resolved_dir = directory.canonical()
 
         # Ensure the directory is within work directory
-        if not str(resolved_dir).startswith(str(self._work_dir)):
+        if not is_within_directory(resolved_dir, self._work_dir):
             return ToolError(
                 message=(
                     f"`{directory}` is outside the working directory. "

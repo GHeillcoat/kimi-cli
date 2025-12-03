@@ -5,10 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from kaos.path import KaosPath
 from kosong.tooling import ToolError, ToolOk
 from pydantic import ValidationError
 
-from kaos.path import KaosPath
 from kimi_cli.tools.file.write import Params, WriteFile
 
 
@@ -110,6 +110,22 @@ async def test_write_with_relative_path(write_file_tool: WriteFile):
 async def test_write_outside_work_directory(write_file_tool: WriteFile, outside_file: Path):
     """Test writing outside the working directory (should fail)."""
     result = await write_file_tool(Params(path=str(outside_file), content="content"))
+
+    assert isinstance(result, ToolError)
+    assert "outside the working directory" in result.message
+
+
+@pytest.mark.asyncio
+async def test_write_outside_work_directory_with_prefix(
+    write_file_tool: WriteFile, temp_work_dir: KaosPath
+):
+    """Paths sharing the same prefix as work dir should still be rejected."""
+    base = Path(str(temp_work_dir))
+    sneaky_dir = base.parent / f"{base.name}-sneaky"
+    sneaky_dir.mkdir(parents=True, exist_ok=True)
+    sneaky_file = sneaky_dir / "file.txt"
+
+    result = await write_file_tool(Params(path=str(sneaky_file), content="content"))
 
     assert isinstance(result, ToolError)
     assert "outside the working directory" in result.message
