@@ -240,7 +240,7 @@ class WelcomeInfoItem:
 
 
 def _get_mcp_stats(soul: Soul | None = None) -> tuple[int, int]:
-    """安全获取 MCP 统计"""
+    """安全获取 MCP 统计 - 返回 (工具数量, 服务器数量)"""
     try:
         if not soul or not isinstance(soul, KimiSoul):
             return 0, 0
@@ -253,7 +253,11 @@ def _get_mcp_stats(soul: Soul | None = None) -> tuple[int, int]:
             return 0, 0
 
         mcp_tools = [t for t in toolset.tools if hasattr(t, "_mcp_tool")]
-        return len(mcp_tools), 0
+        
+        # 简化统计：如果有 MCP 工具，则认为有 MCP 服务器
+        # 这里暂时无法准确统计服务器数量，因为工具对象中没有服务器信息
+        # 所以我们返回工具数量作为主要指标
+        return len(mcp_tools), 1 if mcp_tools else 0
     except Exception:
         return 0, 0
 
@@ -264,7 +268,7 @@ def _print_welcome_info(
     """打印科技风格仪表盘欢迎信息"""
     from kimi_cli.constant import VERSION as current_version
 
-    mcp_count, _ = _get_mcp_stats(soul)
+    mcp_tool_count, mcp_server_count = _get_mcp_stats(soul)
 
     # 1. 构建主布局
     layout = Table.grid(expand=True)
@@ -293,8 +297,11 @@ def _print_welcome_info(
     info_grid.add_column(style=_C_DIM, justify="left")  # Value 列
 
     # MCP 状态
-    if mcp_count > 0:
-        info_grid.add_row("⚡", "MCP 扩展", Text(f"已加载 {mcp_count} 个工具模块", style=_C_TEXT))
+    if mcp_tool_count > 0:
+        if mcp_server_count > 1:
+            info_grid.add_row("⚡", "MCP 扩展", Text(f"已加载 {mcp_tool_count} 个工具", style=_C_TEXT))
+        else:
+            info_grid.add_row("⚡", "MCP 扩展", Text(f"已加载 {mcp_tool_count} 个工具", style=_C_TEXT))
 
     # 更新检查
     if LATEST_VERSION_FILE.exists():
@@ -322,7 +329,7 @@ def _print_welcome_info(
             Text(item.value, style=item.level.value),
         )
 
-    if mcp_count == 0 and not info_items:
+    if mcp_tool_count == 0 and not info_items:
         info_grid.add_row("◈", "系统就绪", "等待指令输入...")
 
     layout.add_row(Padding(info_grid, (0, 0, 0, 1)))

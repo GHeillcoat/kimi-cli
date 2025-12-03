@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
 from pydantic import BaseModel, Field, SecretStr, ValidationError, field_serializer, model_validator
 
@@ -100,6 +100,7 @@ class Config(BaseModel):
     )
     loop_control: LoopControl = Field(default_factory=LoopControl, description="智能体循环控制")
     services: Services = Field(default_factory=Services, description="服务配置")
+    mcp_configs: list[dict[str, Any]] = Field(default_factory=list, description="MCP 服务器配置列表")
 
     @model_validator(mode="after")
     def validate_model(self) -> Self:
@@ -123,6 +124,7 @@ def get_default_config() -> Config:
         models={},
         providers={},
         services=Services(),
+        mcp_configs=[],
     )
 
 
